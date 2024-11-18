@@ -1,8 +1,9 @@
-require('dotenv').config(); // Załaduj zmienne z pliku .env
-const { setupServer } = require('./server');
+require('dotenv').config();
+const { setupServer } = require('./server'); // Poprawny import
+
+// Inicjalizacja połączenia z MongoDB (zakładając, że masz funkcję initMongoConnection)
 const { initMongoConnection } = require('./db/initMongoConnection');
 
-// Inicjalizacja połączenia z MongoDB przed uruchomieniem serwera
 initMongoConnection().then(() => {
-  setupServer(); // Jeśli połączenie się uda, uruchamiamy serwer
+  setupServer(); // Teraz wywołanie funkcji będzie działać
 });

@@ -1,28 +1,64 @@
-require('dotenv').config();
-
+// src/server.js
 const express = require('express');
 const cors = require('cors');
-const pino = require('pino');
-const pinoHttp = require('pino-http');
+const pino = require('pino-http');
+const dotenv = require('dotenv');
+const { getAllContacts, getContactById } = require('./services/contacts'); // Importujemy funkcje
 
-function setupServer() {
-  const app = express();
-  const logger = pino();
+dotenv.config();
 
-  // Middleware
-  app.use(cors());
-  app.use(pinoHttp({ logger }));
+const app = express();
+const port = process.env.PORT || 3000;
 
-  // Obsługa brakujących tras
-  app.use((req, res) => {
-    res.status(404).json({ message: 'Not found' });
+app.use(cors());
+app.use(pino());
+
+// Trasa GET do pobierania kontaktów
+app.get('/contacts', async (req, res) => {
+  try {
+    const contacts = await getAllContacts(); // Pobieramy wszystkie kontakty
+    res.status(200).json({
+      status: 200,
+      message: 'Successfully found contacts!',
+      data: contacts,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: 500,
+      message: 'Error fetching contacts',
+    });
+  }
+});
+
+// Trasa GET do pobierania kontaktu po ID
+app.get('/contacts/:contactId', async (req, res) => {
+  try {
+    const contact = await getContactById(req.params.contactId); // Pobieramy kontakt po ID
+    if (!contact) {
+      return res.status(404).json({
+        message: 'Contact not found',
+      });
+    }
+    res.status(200).json({
+      status: 200,
+      message: `Successfully found contact with id ${req.params.contactId}!`,
+      data: contact,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: 500,
+      message: 'Error fetching contact',
+    });
+  }
+});
+
+// Uruchamiamy serwer
+const setupServer = () => {
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
   });
+};
 
-  // Uruchomienie serwera
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
-}
-
-module.exports = { setupServer };
+module.exports = { setupServer }; // Upewnij się, że eksportujesz funkcję
