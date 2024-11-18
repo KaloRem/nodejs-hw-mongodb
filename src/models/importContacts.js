@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
-const Contact = require('./contact'); // Zaimportowanie modelu Contact
-const contactsData = require('./contacts.json'); // Załadowanie danych z contacts.json
+const Contact = require('./contact');
+const contactsData = require('./contacts.json');
 
 require('dotenv').config();
 
 const { MONGO_URI } = process.env;
 
-console.log(`MONGO_URI: ${MONGO_URI}`); // Log zmiennej MONGO_URI
+console.log(`MONGO_URI: ${MONGO_URI}`);
 
 const importContacts = async () => {
   try {
@@ -16,11 +16,10 @@ const importContacts = async () => {
     });
     console.log('Connected to MongoDB');
 
-    // Wstawienie danych do kolekcji "contacts"
     await Contact.insertMany(contactsData);
     console.log('Contacts have been imported');
 
-    mongoose.connection.close(); // Zamknięcie połączenia
+    mongoose.connection.close();
   } catch (error) {
     console.error('Error importing contacts:', error);
   }

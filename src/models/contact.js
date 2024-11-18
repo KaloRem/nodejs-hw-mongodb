@@ -24,7 +24,7 @@ const contactSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: true }, // Automatycznie dodaje createdAt oraz updatedAt
+  { timestamps: true },
 );
 
 const Contact = mongoose.model('Contact', contactSchema);

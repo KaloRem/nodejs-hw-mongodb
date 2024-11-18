@@ -1,9 +1,8 @@
-const Contact = require('../models/contact'); // Importujemy model
+const Contact = require('../models/contact');
 
-// Funkcja do pobierania wszystkich kontaktów
 const getAllContacts = async () => {
   try {
-    const contacts = await Contact.find(); // Pobieramy wszystkie kontakty
+    const contacts = await Contact.find();
     return contacts;
   } catch (error) {
     console.error('Error fetching contacts:', error);
@@ -11,10 +10,9 @@ const getAllContacts = async () => {
   }
 };
 
-// Funkcja do pobierania kontaktu po ID
 const getContactById = async (contactId) => {
   try {
-    const contact = await Contact.findById(contactId); // Pobieramy kontakt po ID
+    const contact = await Contact.findById(contactId);
     return contact;
   } catch (error) {
     console.error('Error fetching contact by ID:', error);
