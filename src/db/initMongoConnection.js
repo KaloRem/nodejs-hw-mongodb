@@ -12,6 +12,8 @@ const initMongoConnection = async () => {
 
   const mongoUri = `mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_URL}/${MONGODB_DB}?retryWrites=true&w=majority`;
 
+  console.log(`Attempting to connect to MongoDB at ${mongoUri}`);
+
   try {
     await mongoose.connect(mongoUri);
     console.log('Successfully connected to MongoDB');
