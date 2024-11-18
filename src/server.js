@@ -2,8 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const pino = require('pino-http');
 const dotenv = require('dotenv');
-const { getAllContacts, getContactById } = require('./services/contacts'); // Importujemy funkcje
-
+const { getAllContacts, getContactById } = require('./services/contacts');
 dotenv.config();
 
 const app = express();
@@ -12,15 +11,13 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(pino());
 
-// Trasa GET dla głównej strony
 app.get('/', (req, res) => {
   res.send('Server is up and running');
 });
 
-// Trasa GET do pobierania kontaktów
 app.get('/contacts', async (req, res) => {
   try {
-    const contacts = await getAllContacts(); // Pobieramy wszystkie kontakty
+    const contacts = await getAllContacts();
     res.status(200).json({
       status: 200,
       message: 'Successfully found contacts!',
@@ -35,10 +32,9 @@ app.get('/contacts', async (req, res) => {
   }
 });
 
-// Trasa GET do pobierania kontaktu po ID
 app.get('/contacts/:contactId', async (req, res) => {
   try {
-    const contact = await getContactById(req.params.contactId); // Pobieramy kontakt po ID
+    const contact = await getContactById(req.params.contactId);
     if (!contact) {
       return res.status(404).json({
         message: 'Contact not found',
@@ -58,11 +54,10 @@ app.get('/contacts/:contactId', async (req, res) => {
   }
 });
 
-// Uruchamiamy serwer
 const setupServer = () => {
   app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
   });
 };
 
-module.exports = { setupServer }; // Eksportujemy funkcję
+module.exports = { setupServer };
