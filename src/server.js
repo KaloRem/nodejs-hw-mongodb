@@ -1,8 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import pino from 'pino-http';
-
-import { getContacts } from './controllers/contactController.js';
+import { getContacts, getContact } from './controllers/contactController.js';
 
 const setupServer = () => {
   const app = express();
@@ -12,7 +11,8 @@ const setupServer = () => {
   app.use(pino());
 
   // Routes
-  app.get('/contacts', getContacts); // Реєстрація роута
+  app.get('/contacts', getContacts); // Роут для отримання всіх контактів
+  app.get('/contacts/:contactId', getContact); // Новий роут для отримання контакту за ID
 
   // Обробка неіснуючих роутів
   app.use((req, res, next) => {
