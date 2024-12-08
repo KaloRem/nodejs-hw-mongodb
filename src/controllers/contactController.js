@@ -1,9 +1,8 @@
 import { getAllContacts, getContactById } from '../services/contacts.js';
 
-// Контролер для роута GET /contacts
 export const getContacts = async (req, res, next) => {
   try {
-    const contacts = await getAllContacts(); // Функція, яка повертає всі контакти
+    const contacts = await getAllContacts();
     res.status(200).json({
       status: 200,
       message: 'Successfully found contacts!',
@@ -14,7 +13,6 @@ export const getContacts = async (req, res, next) => {
   }
 };
 
-// Контролер для роута GET /contacts/:contactId
 export const getContact = async (req, res, next) => {
   try {
     const { contactId } = req.params;
@@ -22,6 +20,7 @@ export const getContact = async (req, res, next) => {
 
     if (!contact) {
       return res.status(404).json({
+        status: 404,
         message: 'Contact not found',
       });
     }
@@ -32,6 +31,12 @@ export const getContact = async (req, res, next) => {
       data: contact,
     });
   } catch (error) {
+    if (error.message === 'Invalid contact ID') {
+      return res.status(400).json({
+        status: 400,
+        message: error.message,
+      });
+    }
     next(error);
   }
 };
