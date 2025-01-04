@@ -1,25 +1,22 @@
-import mongoose from 'mongoose';
+// src/services/contacts.js
 import Contact from '../models/contactModel.js';
 
-export const getAllContacts = async () => {
-  try {
-    const contacts = await Contact.find();
-    return contacts;
-  } catch {
-    throw new Error('Error fetching contacts');
-  }
+export const createContact = async (contactData) => {
+  return await Contact.create(contactData);
 };
 
-export const getContactById = async (contactId) => {
-  if (!mongoose.Types.ObjectId.isValid(contactId)) {
-    throw new Error('Invalid contact ID');
-  }
+export const getAllContacts = async () => {
+  return await Contact.find(); // Повертає всі контакти
+};
 
-  try {
-    const contact = await Contact.findById(contactId);
-    return contact || null;
-  } catch (error) {
-    console.error('Error fetching contact:', error);
-    throw new Error('Error fetching contact');
-  }
+export const getContactById = async (id) => {
+  return await Contact.findById(id);
+};
+
+export const updateContact = async (id, data) => {
+  return await Contact.findByIdAndUpdate(id, data, { new: true });
+};
+
+export const deleteContact = async (id) => {
+  return await Contact.findByIdAndDelete(id);
 };

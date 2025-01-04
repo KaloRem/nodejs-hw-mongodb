@@ -1,31 +1,38 @@
+// src/server.js
 import express from 'express';
-import cors from 'cors';
-import pino from 'pino-http';
-import { getContacts, getContact } from './controllers/contactController.js';
+import dotenv from 'dotenv';
+import contactsRouter from './routers/contacts.js';
+import errorHandler from './middlewares/errorHandler.js';
+import notFoundHandler from './middlewares/notFoundHandler.js';
+
+dotenv.config();
 
 const setupServer = () => {
   const app = express();
-
-  // Middleware
-  app.use(cors());
-  app.use(pino());
-
-  // Routes
-  app.get('/contacts', getContacts); // Роут для отримання всіх контактів
-  app.get('/contacts/:contactId', getContact); // Новий роут для отримання контакту за ID
-
-  // Обробка неіснуючих роутів
-  app.use((req, res, next) => {
-    res.status(404).json({ message: 'Not found' });
-  });
-
-  // Запуск сервера
   const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+
+  app.use(express.json());
+
+  // Лог кожного запиту для діагностики (опціонально)
+  app.use((req, res, next) => {
+    console.log(
+      `[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`,
+    );
+    next();
   });
 
-  return app;
+  // Маршрут для контактів
+  app.use('/contacts', contactsRouter);
+
+  // Middleware для обробки запитів на неіснуючі маршрути
+  app.use(notFoundHandler);
+
+  // Middleware для обробки помилок
+  app.use(errorHandler);
+
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 };
 
 export default setupServer;

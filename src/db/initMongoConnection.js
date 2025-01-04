@@ -1,20 +1,20 @@
+// src/db/initMongoConnection.js
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const initMongoConnection = async () => {
-  const { MONGODB_USER, MONGODB_PASSWORD, MONGODB_URL, MONGODB_DB } =
-    process.env;
-
-  if (!MONGODB_USER || !MONGODB_PASSWORD || !MONGODB_URL || !MONGODB_DB) {
-    throw new Error('Missing required MongoDB environment variables');
-  }
-
-  const connectionString = `mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_URL}/${MONGODB_DB}?retryWrites=true&w=majority`;
-
   try {
-    await mongoose.connect(connectionString);
-    console.log('Mongo connection successfully established!');
+    await mongoose.connect(
+      `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_URL}/${process.env.MONGODB_DB}`,
+      {
+        // Залишаємо лише актуальні опції
+      },
+    );
+    console.log('Connected to MongoDB');
   } catch (error) {
-    console.error('Failed to connect to MongoDB', error);
+    console.error('Error connecting to MongoDB', error);
     process.exit(1);
   }
 };
