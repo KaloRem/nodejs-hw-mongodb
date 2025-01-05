@@ -21,7 +21,7 @@ app.use((req, res, next) => {
 });
 
 mongoose
-  .connect(process.env.MONGODB_URL) // Видалено застарілі опції
+  .connect(process.env.MONGODB_URL)
   .then(() => {
     console.log('Database connected');
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
