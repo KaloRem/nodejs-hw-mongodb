@@ -1,5 +1,6 @@
+import createHttpError from 'http-errors';
+const { BadRequest } = createHttpError;
 import mongoose from 'mongoose';
-import { BadRequest } from 'http-errors';
 
 export const isValidId = (req, res, next) => {
   const { contactId } = req.params;

@@ -1,7 +1,7 @@
 // src/server.js
 import express from 'express';
 import dotenv from 'dotenv';
-import contactsRouter from './routers/contacts.js';
+import contactsRouter from './routes/contacts.js';
 import errorHandler from './middlewares/errorHandler.js';
 import notFoundHandler from './middlewares/notFoundHandler.js';
 

@@ -17,11 +17,7 @@ app.use((err, req, res, next) => {
 });
 
 mongoose
-  .connect(process.env.MONGODB_URL, {
-    user: process.env.MONGODB_USER,
-    pass: process.env.MONGODB_PASSWORD,
-    dbName: process.env.MONGODB_DB,
-  })
+  .connect(process.env.MONGODB_URL)
   .then(() => {
     console.log('Database connected');
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
