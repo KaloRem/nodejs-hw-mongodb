@@ -9,10 +9,10 @@ const contactSchema = new mongoose.Schema(
     contactType: { type: String, required: true },
   },
   {
-    versionKey: false,
+    versionKey: false, // Вимикаємо "__v"
+    timestamps: true, // Додаємо поля "createdAt" і "updatedAt"
   },
 );
 
 const Contact = mongoose.model('Contact', contactSchema);
-
 export default Contact;
