@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import contactsRouter from './routers/contacts';
+import contactsRouter from './routes/contacts.js';
 
 dotenv.config();
 const app = express();
