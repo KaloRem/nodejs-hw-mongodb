@@ -1,19 +1,29 @@
-import 'dotenv/config';
-import initMongoConnection from './db/initMongoConnection.js';
-import setupServer from './server.js';
-import Contact from './models/contactModel.js';
+import express from 'express';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import contactsRouter from './routers/contacts';
 
-const startApp = async () => {
-  try {
-    await initMongoConnection();
+dotenv.config();
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-    const contacts = await Contact.find();
-    console.log('Contacts in database:', contacts);
+app.use(express.json());
+app.use('/api', contactsRouter);
 
-    setupServer();
-  } catch (error) {
-    console.error('Error during app initialization', error);
-  }
-};
+app.use((err, req, res, next) => {
+  res
+    .status(err.status || 500)
+    .json({ message: err.message || 'Internal server error' });
+});
 
-startApp();
+mongoose
+  .connect(process.env.MONGODB_URL, {
+    user: process.env.MONGODB_USER,
+    pass: process.env.MONGODB_PASSWORD,
+    dbName: process.env.MONGODB_DB,
+  })
+  .then(() => {
+    console.log('Database connected');
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch((err) => console.error('Database connection error:', err));

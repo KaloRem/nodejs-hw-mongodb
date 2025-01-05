@@ -1,28 +1,25 @@
-// src/routers/contacts.js
 import express from 'express';
+import { validateBody } from '../middlewares/validateBody.js';
 import {
-  createContact,
-  getContactById,
-  updateContact,
-  deleteContact,
+  contactSchema,
+  contactUpdateSchema,
+} from '../models/validationSchemas.js';
+import { isValidId } from '../middlewares/isValidId.js';
+import {
   getContacts,
+  createContact,
+  updateContact,
 } from '../controllers/contactController.js';
 
 const router = express.Router();
 
-// Створення контакту
-router.post('/', createContact);
-
-// Отримання всіх контактів
-router.get('/', getContacts);
-
-// Отримання контакту за ID
-router.get('/:contactId', getContactById);
-
-// Оновлення контакту
-router.patch('/:contactId', updateContact);
-
-// Видалення контакту
-router.delete('/:contactId', deleteContact);
+router.get('/contacts', getContacts);
+router.post('/contacts', validateBody(contactSchema), createContact);
+router.patch(
+  '/contacts/:contactId',
+  isValidId,
+  validateBody(contactUpdateSchema),
+  updateContact,
+);
 
 export default router;

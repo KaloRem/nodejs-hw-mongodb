@@ -1,91 +1,77 @@
-// src/controllers/contactController.js
-import createError from 'http-errors';
-import * as contactService from '../services/contacts.js';
-
-export const createContact = async (req, res, next) => {
-  try {
-    const { name, phoneNumber, email, isFavourite, contactType } = req.body;
-    if (!name || !phoneNumber || !contactType) {
-      throw createError(
-        400,
-        "Fields 'name', 'phoneNumber', and 'contactType' are required",
-      );
-    }
-    const newContact = await contactService.createContact({
-      name,
-      phoneNumber,
-      email,
-      isFavourite,
-      contactType,
-    });
-    res.status(201).json({
-      status: 201,
-      message: 'Successfully created a contact!',
-      data: newContact,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
+import Contact from '../models/contactModel.js';
 
 export const getContacts = async (req, res, next) => {
   try {
-    const contacts = await contactService.getAllContacts(); // Отримання всіх контактів
+    const {
+      page = 1,
+      perPage = 10,
+      sortBy = 'name',
+      sortOrder = 'asc',
+      type,
+      isFavourite,
+    } = req.query;
+    const skip = (page - 1) * perPage;
+
+    const filter = {};
+    if (type) filter.contactType = type;
+    if (isFavourite !== undefined) filter.isFavourite = isFavourite === 'true';
+
+    const totalItems = await Contact.countDocuments(filter);
+    const contacts = await Contact.find(filter)
+      .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
+      .limit(Number(perPage))
+      .skip(skip);
+
+    const totalPages = Math.ceil(totalItems / perPage);
+
     res.status(200).json({
       status: 200,
-      message: 'Successfully patched a contact!',
-      data: contacts,
+      message: 'Successfully found contacts!',
+      data: {
+        data: contacts,
+        page: Number(page),
+        perPage: Number(perPage),
+        totalItems,
+        totalPages,
+        hasPreviousPage: page > 1,
+        hasNextPage: page < totalPages,
+      },
     });
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 };
 
-export const getContactById = async (req, res, next) => {
+export const createContact = async (req, res, next) => {
   try {
-    const { contactId } = req.params;
-    const contact = await contactService.getContactById(contactId);
-    if (!contact) {
-      throw createError(404, 'Contact not found');
-    }
-    res
-      .status(200)
-      .json({ status: 200, message: 'Contact found', data: contact });
-  } catch (err) {
-    next(err);
+    const newContact = await Contact.create(req.body);
+    res.status(201).json({
+      status: 201,
+      message: 'Contact created successfully!',
+      data: newContact,
+    });
+  } catch (error) {
+    next(error);
   }
 };
 
 export const updateContact = async (req, res, next) => {
   try {
     const { contactId } = req.params;
-    const updatedData = req.body;
-    const updatedContact = await contactService.updateContact(
+    const updatedContact = await Contact.findByIdAndUpdate(
       contactId,
-      updatedData,
+      req.body,
+      { new: true },
     );
     if (!updatedContact) {
-      throw createError(404, 'Contact not found');
+      return res.status(404).json({ message: 'Contact not found!' });
     }
     res.status(200).json({
       status: 200,
-      message: 'Successfully patched a contact!',
+      message: 'Contact updated successfully!',
       data: updatedContact,
     });
-  } catch (err) {
-    next(err);
-  }
-};
-
-export const deleteContact = async (req, res, next) => {
-  try {
-    const { contactId } = req.params;
-    const deletedContact = await contactService.deleteContact(contactId);
-    if (!deletedContact) {
-      throw createError(404, 'Contact not found');
-    }
-    res.status(204).send();
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 };
