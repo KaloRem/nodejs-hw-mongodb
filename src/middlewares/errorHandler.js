@@ -1,8 +1,8 @@
 // src/middlewares/errorHandler.js
 function errorHandler(err, req, res, next) {
   console.error(err.stack);
-  res.status(500).json({
-    status: 500,
+  res.status(404).json({
+    status: 404,
     message: 'Something went wrong',
     data: err.message,
   });
