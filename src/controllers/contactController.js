@@ -3,7 +3,7 @@ import ctrlWrapper from '../utils/ctrlWrapper.js';
 import * as service from '../services/contacts.js'; // Імпортуємо всі методи з сервісу
 
 // Отримати всі контакти
-export const getAllContacts = ctrlWrapper(async (req, res) => {
+export const getContacts = ctrlWrapper(async (req, res) => {
   const contacts = await service.getAllContacts();
   res.status(200).json({ status: 200, data: contacts });
 });
