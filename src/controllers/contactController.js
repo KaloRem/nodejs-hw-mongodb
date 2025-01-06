@@ -1,91 +1,47 @@
-// src/controllers/contactController.js
 import createError from 'http-errors';
-import * as contactService from '../services/contacts.js';
+import ctrlWrapper from '../utils/ctrlWrapper.js';
+import * as service from '../services/contacts.js'; // Імпортуємо всі методи з сервісу
 
-export const createContact = async (req, res, next) => {
-  try {
-    const { name, phoneNumber, email, isFavourite, contactType } = req.body;
-    if (!name || !phoneNumber || !contactType) {
-      throw createError(
-        400,
-        "Fields 'name', 'phoneNumber', and 'contactType' are required",
-      );
-    }
-    const newContact = await contactService.createContact({
-      name,
-      phoneNumber,
-      email,
-      isFavourite,
-      contactType,
-    });
-    res.status(201).json({
-      status: 201,
-      message: 'Successfully created a contact!',
-      data: newContact,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
+// Отримати всі контакти
+export const getAllContacts = ctrlWrapper(async (req, res) => {
+  const contacts = await service.getAllContacts();
+  res.status(200).json({ status: 200, data: contacts });
+});
 
-export const getContacts = async (req, res, next) => {
-  try {
-    const contacts = await contactService.getAllContacts(); // Отримання всіх контактів
-    res.status(200).json({
-      status: 200,
-      message: 'Successfully patched a contact!',
-      data: contacts,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
+// Отримати контакт за ID
+export const getContactById = ctrlWrapper(async (req, res) => {
+  const contact = await service.getContactById(req.params.contactId);
+  if (!contact) throw createError(404, 'Contact not found');
+  res.status(200).json({ status: 200, data: contact });
+});
 
-export const getContactById = async (req, res, next) => {
-  try {
-    const { contactId } = req.params;
-    const contact = await contactService.getContactById(contactId);
-    if (!contact) {
-      throw createError(404, 'Contact not found');
-    }
-    res
-      .status(200)
-      .json({ status: 200, message: 'Contact found', data: contact });
-  } catch (err) {
-    next(err);
-  }
-};
+// Створити новий контакт
+export const createContact = ctrlWrapper(async (req, res) => {
+  const newContact = await service.createContact(req.body);
+  res.status(201).json({
+    status: 201,
+    message: 'Successfully created a contact!',
+    data: newContact,
+  });
+});
 
-export const updateContact = async (req, res, next) => {
-  try {
-    const { contactId } = req.params;
-    const updatedData = req.body;
-    const updatedContact = await contactService.updateContact(
-      contactId,
-      updatedData,
-    );
-    if (!updatedContact) {
-      throw createError(404, 'Contact not found');
-    }
-    res.status(200).json({
-      status: 200,
-      message: 'Successfully patched a contact!',
-      data: updatedContact,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
+// Оновити контакт за ID
+export const updateContact = ctrlWrapper(async (req, res) => {
+  const updatedContact = await service.updateContact(
+    req.params.contactId,
+    req.body,
+  );
+  if (!updatedContact) throw createError(404, 'Contact not found');
+  res.status(200).json({
+    status: 200,
+    message: 'Successfully patched a contact!',
+    data: updatedContact,
+  });
+});
 
-export const deleteContact = async (req, res, next) => {
-  try {
-    const { contactId } = req.params;
-    const deletedContact = await contactService.deleteContact(contactId);
-    if (!deletedContact) {
-      throw createError(404, 'Contact not found');
-    }
-    res.status(204).send();
-  } catch (err) {
-    next(err);
-  }
-};
+// Видалити контакт за ID
+export const deleteContact = ctrlWrapper(async (req, res) => {
+  const deletedContact = await service.deleteContact(req.params.contactId);
+  if (!deletedContact) throw createError(404, 'Contact not found');
+  res.status(204).send(); // Повертаємо статус 204 без тіла відповіді
+});
