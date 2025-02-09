@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema(
   {
@@ -23,18 +23,14 @@ const userSchema = new mongoose.Schema(
 
 // Hashowanie hasła przed zapisem
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    return next();
-  }
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (err) {
-    next(err);
-  }
-});
+  if (!this.isModified('password')) return next();
 
+  console.log('🔍 Haszowanie hasła przed zapisem do MongoDB:', this.password);
+  this.password = await bcrypt.hash(this.password, 10);
+  console.log('✅ Zahaszowane hasło przed zapisem:', this.password);
+
+  next();
+});
 const User = mongoose.model('User', userSchema);
 
-module.exports = User;
+export default User;

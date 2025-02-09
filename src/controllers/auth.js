@@ -1,10 +1,9 @@
-const createError = require('http-errors');
-const User = require('../models/user');
-const Session = require('../models/session');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+import createError from 'http-errors';
+import User from '../models/userModel.js';
+import Session from '../models/session.js';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 
-// Funkcja do generowania tokenów
 const generateTokens = (userId) => {
   const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: '15m',
@@ -16,52 +15,69 @@ const generateTokens = (userId) => {
 };
 
 // ✅ Rejestracja użytkownika
-const register = async (req, res, next) => {
+export const register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
-    // Sprawdzenie, czy użytkownik o podanym emailu już istnieje
+    console.log('🔹 Próba rejestracji:', email, password);
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       throw createError(409, 'Email in use');
     }
 
-    // Utworzenie nowego użytkownika
-    const user = new User({ name, email, password });
-    await user.save();
+    // 🚨 NIE HASZUJEMY tutaj hasła! Mongoose zrobi to automatycznie!
+    const newUser = new User({ name, email, password });
+
+    await newUser.save();
+
+    console.log('✅ Użytkownik zarejestrowany:', newUser);
 
     res.status(201).json({
       status: 'success',
       message: 'Successfully registered a user!',
-      data: { id: user._id, name: user.name, email: user.email },
+      data: { id: newUser._id, name: newUser.name, email: newUser.email },
     });
   } catch (err) {
+    console.error('❌ Błąd rejestracji:', err);
     next(err);
   }
 };
 
 // ✅ Logowanie użytkownika
-const login = async (req, res, next) => {
+export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    // Sprawdzenie, czy użytkownik istnieje
+    console.log('🔹 Próba logowania:', email, password);
+
     const user = await User.findOne({ email });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user) {
+      console.log('❌ Użytkownik nie znaleziony:', email);
       throw createError(401, 'Invalid email or password');
     }
 
-    // Usunięcie poprzednich sesji użytkownika
-    await Session.deleteMany({ userId: user._id });
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      console.log('❌ Błędne hasło dla:', email);
+      throw createError(401, 'Invalid email or password');
+    }
 
-    // Generowanie nowych tokenów
+    console.log('✅ Hasło poprawne! Generowanie tokenów...');
+
+    // ✅ Generowanie `accessToken` i `refreshToken`
     const { accessToken, refreshToken } = generateTokens(user._id);
-    const accessTokenValidUntil = new Date(Date.now() + 15 * 60 * 1000);
+
+    // ✅ Ustawienie dat ważności tokenów
+    const accessTokenValidUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 min
     const refreshTokenValidUntil = new Date(
       Date.now() + 30 * 24 * 60 * 60 * 1000,
-    );
+    ); // 30 dni
 
-    // Tworzenie nowej sesji
+    // ✅ Usunięcie starej sesji użytkownika
+    await Session.deleteMany({ userId: user._id });
+
+    // ✅ Tworzenie nowej sesji użytkownika
     const session = new Session({
       userId: user._id,
       accessToken,
@@ -69,98 +85,130 @@ const login = async (req, res, next) => {
       accessTokenValidUntil,
       refreshTokenValidUntil,
     });
+
     await session.save();
 
-    // Ustawienie ciasteczka z refresh tokenem
+    // ✅ Ustawienie `refreshToken` w cookies
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
-    // Zwracamy accessToken w odpowiedzi
+    // ✅ Zwrócenie `accessToken` w odpowiedzi
     res.status(200).json({
       status: 'success',
       message: 'Successfully logged in a user!',
       data: { accessToken },
     });
+
+    console.log(
+      '✅ Użytkownik zalogowany, `accessToken` wygenerowany:',
+      accessToken,
+    );
   } catch (err) {
+    console.error('❌ Błąd logowania:', err);
     next(err);
   }
 };
 
-const refresh = async (req, res, next) => {
+// ✅ Odświeżanie tokena
+export const refresh = async (req, res, next) => {
   try {
+    console.log('🔹 Cookies w `refresh`:', req.cookies); // ✅ Sprawdzenie cookies
+
     const { refreshToken } = req.cookies;
     if (!refreshToken) {
-      throw createError(401, 'Refresh token not provided');
+      throw createError(401, 'Refresh token missing');
     }
 
-    // Znalezienie sesji w bazie danych
+    console.log('✅ Refresh token pobrany:', refreshToken);
+
     const session = await Session.findOne({ refreshToken });
-    if (!session || session.refreshTokenValidUntil < new Date()) {
+    if (!session) {
+      throw createError(401, 'Invalid refresh token');
+    }
+
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    if (!decoded) {
       throw createError(401, 'Invalid or expired refresh token');
     }
 
-    // Usunięcie starej sesji
+    console.log('✅ Refresh token zweryfikowany:', decoded);
+
+    const newAccessToken = jwt.sign(
+      { userId: session.userId },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: '15m' },
+    );
+    const newRefreshToken = jwt.sign(
+      { userId: session.userId },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: '30d' },
+    );
+
     await Session.deleteMany({ userId: session.userId });
 
-    // Generowanie nowych tokenów
-    const { accessToken, refreshToken: newRefreshToken } = generateTokens(
-      session.userId,
-    );
-    const accessTokenValidUntil = new Date(Date.now() + 15 * 60 * 1000);
-    const refreshTokenValidUntil = new Date(
-      Date.now() + 30 * 24 * 60 * 60 * 1000,
-    );
-
-    // Tworzenie nowej sesji
     const newSession = new Session({
       userId: session.userId,
-      accessToken,
+      accessToken: newAccessToken,
       refreshToken: newRefreshToken,
-      accessTokenValidUntil,
-      refreshTokenValidUntil,
+      accessTokenValidUntil: new Date(Date.now() + 15 * 60 * 1000),
+      refreshTokenValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     });
+
     await newSession.save();
 
-    // Ustawienie nowego refreshToken w ciasteczku
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
-    // Zwracamy nowy accessToken
     res.status(200).json({
       status: 'success',
       message: 'Successfully refreshed a session!',
-      data: { accessToken },
+      data: { accessToken: newAccessToken },
     });
-  } catch (err) {
-    next(err);
+
+    console.log('✅ Nowy `accessToken` wygenerowany:', newAccessToken);
+  } catch (error) {
+    console.error('❌ Błąd odświeżania sesji:', error);
+    next(createError(401, 'Could not refresh session'));
   }
 };
 
-const logout = async (req, res, next) => {
+// ✅ Wylogowanie użytkownika
+export const logout = async (req, res, next) => {
   try {
+    console.log('🔹 Próba wylogowania, cookies:', req.cookies);
+
     const { refreshToken } = req.cookies;
-
-    if (refreshToken) {
-      // Usunięcie sesji z bazy danych
-      await Session.findOneAndDelete({ refreshToken });
-
-      // Usunięcie ciasteczka refreshToken
-      res.clearCookie('refreshToken', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-      });
+    if (!refreshToken) {
+      throw createError(401, 'Refresh token missing');
     }
 
-    res.status(204).send(); // Brak treści w odpowiedzi (No Content)
-  } catch (err) {
-    next(err);
+    console.log('✅ Refresh token znaleziony:', refreshToken);
+
+    // ✅ Usunięcie sesji użytkownika
+    const deletedSession = await Session.findOneAndDelete({ refreshToken });
+    if (!deletedSession) {
+      throw createError(401, 'Invalid refresh token');
+    }
+
+    console.log('✅ Sesja usunięta z MongoDB:', deletedSession);
+
+    // ✅ Usunięcie ciasteczka `refreshToken`
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+    });
+
+    res.status(204).send(); // Brak treści w odpowiedzi
+
+    console.log('✅ Użytkownik poprawnie wylogowany!');
+  } catch (error) {
+    console.error('❌ Błąd wylogowania:', error);
+    next(createError(401, 'Could not logout user'));
   }
 };
-
-module.exports = { register, login, refresh, logout };

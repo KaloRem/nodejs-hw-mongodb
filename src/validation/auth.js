@@ -1,6 +1,6 @@
-const Joi = require('joi');
+import Joi from 'joi';
 
-const registerSchema = Joi.object({
+export const registerSchema = Joi.object({
   name: Joi.string().min(2).max(50).required().messages({
     'string.empty': 'Name is required',
     'string.min': 'Name must be at least 2 characters long',
@@ -16,7 +16,8 @@ const registerSchema = Joi.object({
   }),
 });
 
-const loginSchema = Joi.object({
+export const loginSchema = Joi.object({
+  // ✅ Upewnij się, że ta linia istnieje!
   email: Joi.string().email().required().messages({
     'string.empty': 'Email is required',
     'string.email': 'Invalid email format',
@@ -25,5 +26,3 @@ const loginSchema = Joi.object({
     'string.empty': 'Password is required',
   }),
 });
-
-module.exports = { registerSchema, loginSchema };

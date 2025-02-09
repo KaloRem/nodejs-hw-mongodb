@@ -1,12 +1,13 @@
-const express = require('express');
+import express from 'express';
+import { register, login, refresh, logout } from '../controllers/auth.js'; // ✅ Import jako ES Module
+import validate from '../middlewares/validate.js';
+import { registerSchema, loginSchema } from '../validation/auth.js';
+
 const router = express.Router();
-const { register, login, refresh, logout } = require('../controllers/auth');
-const validate = require('../middleware/validate');
-const { registerSchema, loginSchema } = require('../validation/auth');
 
 router.post('/register', validate(registerSchema), register);
 router.post('/login', validate(loginSchema), login);
 router.post('/refresh', refresh);
-router.post('/logout', logout); // ➡️ Nowy endpoint
+router.post('/logout', logout);
 
-module.exports = router;
+export default router;

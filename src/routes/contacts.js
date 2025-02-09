@@ -1,7 +1,7 @@
 import express from 'express';
 import { validateBody } from '../middlewares/validateBody.js';
 import { isValidId } from '../middlewares/isValidId.js';
-import authenticate from '../middleware/authenticate.js'; // Import middleware
+import authenticate from '../middlewares/authenticate.js'; // Import middleware
 import {
   getContacts,
   getContactById,

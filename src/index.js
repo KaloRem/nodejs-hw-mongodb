@@ -1,6 +1,8 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+import authRouter from './routes/auth.js';
 import contactsRouter from './routes/contacts.js';
 
 dotenv.config();
@@ -8,7 +10,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(cookieParser());
 app.use('/', contactsRouter);
+app.use('/auth', authRouter);
 
 app.use((err, req, res, next) => {
   res
