@@ -7,6 +7,11 @@ const contactSchema = new mongoose.Schema(
     email: { type: String },
     isFavourite: { type: Boolean, default: false },
     contactType: { type: String, required: true },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User', // Powiązanie z użytkownikiem
+      required: true,
+    },
   },
   {
     versionKey: false, // Вимикаємо "__v"

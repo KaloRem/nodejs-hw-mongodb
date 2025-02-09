@@ -1,5 +1,6 @@
 import Contact from '../models/contactModel.js';
 
+// Pobieranie kontaktów zalogowanego użytkownika
 export const getContacts = async (req, res, next) => {
   try {
     const {
@@ -13,23 +14,24 @@ export const getContacts = async (req, res, next) => {
 
     const skip = (page - 1) * perPage;
 
-    // Об'єкт фільтрації
-    const filter = {};
+    // Filtr tylko dla kontaktów zalogowanego użytkownika
+    const filter = { userId: req.user._id };
+
     if (type) {
-      filter.contactType = type; // Додаємо фільтрацію за типом контакту
+      filter.contactType = type;
     }
     if (isFavourite !== undefined) {
-      filter.isFavourite = isFavourite === 'true'; // Додаємо фільтрацію за обраними
+      filter.isFavourite = isFavourite === 'true';
     }
 
-    // Підрахунок загальної кількості відфільтрованих контактів
+    // Liczenie kontaktów użytkownika
     const totalItems = await Contact.countDocuments(filter);
 
-    // Пошук контактів з фільтрацією, сортуванням та пагінацією
+    // Pobieranie kontaktów użytkownika
     const contacts = await Contact.find(filter)
-      .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 }) // Сортування
-      .limit(Number(perPage)) // Кількість контактів на сторінці
-      .skip(skip); // Пропуск попередніх сторінок
+      .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
+      .limit(Number(perPage))
+      .skip(skip);
 
     const totalPages = Math.ceil(totalItems / perPage);
 
@@ -51,10 +53,14 @@ export const getContacts = async (req, res, next) => {
   }
 };
 
+// Pobieranie jednego kontaktu użytkownika
 export const getContactById = async (req, res, next) => {
   try {
     const { contactId } = req.params;
-    const contact = await Contact.findById(contactId);
+    const contact = await Contact.findOne({
+      _id: contactId,
+      userId: req.user._id,
+    });
 
     if (!contact) {
       return res
@@ -72,9 +78,14 @@ export const getContactById = async (req, res, next) => {
   }
 };
 
+// Tworzenie nowego kontaktu (dodanie userId)
 export const createContact = async (req, res, next) => {
   try {
-    const newContact = await Contact.create(req.body);
+    const newContact = await Contact.create({
+      ...req.body,
+      userId: req.user._id,
+    });
+
     res.status(201).json({
       status: 201,
       message: 'Contact created successfully!',
@@ -85,11 +96,12 @@ export const createContact = async (req, res, next) => {
   }
 };
 
+// Aktualizacja kontaktu (tylko jeśli kontakt należy do użytkownika)
 export const updateContact = async (req, res, next) => {
   try {
     const { contactId } = req.params;
-    const updatedContact = await Contact.findByIdAndUpdate(
-      contactId,
+    const updatedContact = await Contact.findOneAndUpdate(
+      { _id: contactId, userId: req.user._id },
       req.body,
       {
         new: true,
@@ -113,10 +125,14 @@ export const updateContact = async (req, res, next) => {
   }
 };
 
+// Usuwanie kontaktu (tylko jeśli kontakt należy do użytkownika)
 export const deleteContactById = async (req, res, next) => {
   try {
     const { contactId } = req.params;
-    const deletedContact = await Contact.findByIdAndDelete(contactId);
+    const deletedContact = await Contact.findOneAndDelete({
+      _id: contactId,
+      userId: req.user._id,
+    });
 
     if (!deletedContact) {
       return res
@@ -124,10 +140,7 @@ export const deleteContactById = async (req, res, next) => {
         .json({ status: 404, message: 'Contact not found!' });
     }
 
-    res.status(200).json({
-      status: 200,
-      message: 'Contact deleted successfully!',
-    });
+    res.status(204).send();
   } catch (error) {
     next(error);
   }

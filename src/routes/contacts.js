@@ -1,6 +1,7 @@
 import express from 'express';
 import { validateBody } from '../middlewares/validateBody.js';
 import { isValidId } from '../middlewares/isValidId.js';
+import authenticate from '../middleware/authenticate.js'; // Import middleware
 import {
   getContacts,
   getContactById,
@@ -15,15 +16,26 @@ import {
 
 const router = express.Router();
 
-router.get('/contacts', getContacts); // Отримати всі контакти
-router.get('/contacts/:contactId', isValidId, getContactById); // Отримати контакт за ID
-router.post('/contacts', validateBody(contactSchema), createContact); // Створити новий контакт
+router.get('/contacts', authenticate, getContacts); // Pobranie wszystkich kontaktów (tylko dla zalogowanych użytkowników)
+router.get('/contacts/:contactId', authenticate, isValidId, getContactById); // Pobranie kontaktu po ID
+router.post(
+  '/contacts',
+  authenticate,
+  validateBody(contactSchema),
+  createContact,
+); // Tworzenie nowego kontaktu
 router.patch(
   '/contacts/:contactId',
+  authenticate,
   isValidId,
   validateBody(contactUpdateSchema),
   updateContact,
-); // Оновити контакт
-router.delete('/contacts/:contactId', isValidId, deleteContactById); // Видалити контакт
+); // Aktualizacja kontaktu
+router.delete(
+  '/contacts/:contactId',
+  authenticate,
+  isValidId,
+  deleteContactById,
+); // Usunięcie kontaktu
 
 export default router;
