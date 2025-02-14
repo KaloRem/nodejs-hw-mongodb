@@ -34,7 +34,7 @@ export const register = async (req, res, next) => {
     console.log('✅ Użytkownik zarejestrowany:', newUser);
 
     res.status(201).json({
-      status: 'success',
+      status: '201',
       message: 'Successfully registered a user!',
       data: { id: newUser._id, name: newUser.name, email: newUser.email },
     });
@@ -97,7 +97,7 @@ export const login = async (req, res, next) => {
 
     // ✅ Zwrócenie `accessToken` w odpowiedzi
     res.status(200).json({
-      status: 'success',
+      status: '200',
       message: 'Successfully logged in a user!',
       data: { accessToken },
     });
@@ -166,7 +166,7 @@ export const refresh = async (req, res, next) => {
     });
 
     res.status(200).json({
-      status: 'success',
+      status: '200',
       message: 'Successfully refreshed a session!',
       data: { accessToken: newAccessToken },
     });

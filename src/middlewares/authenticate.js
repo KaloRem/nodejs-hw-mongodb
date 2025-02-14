@@ -1,6 +1,7 @@
 import createError from 'http-errors';
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
+import Session from '../models/session.js';
 
 const authenticate = async (req, res, next) => {
   try {
@@ -16,6 +17,11 @@ const authenticate = async (req, res, next) => {
       decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     } catch {
       throw createError(401, 'Access token expired');
+    }
+
+    const session = await Session.findOne({ accessToken: token });
+    if (!session) {
+      throw createError(401, 'Session expired, please log in again');
     }
 
     const user = await User.findById(decoded.userId);
