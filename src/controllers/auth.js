@@ -26,7 +26,6 @@ export const register = async (req, res, next) => {
       throw createError(409, 'Email in use');
     }
 
-    // 🚨 NIE HASZUJEMY tutaj hasła! Mongoose zrobi to automatycznie!
     const newUser = new User({ name, email, password });
 
     await newUser.save();
@@ -60,7 +59,6 @@ export const login = async (req, res, next) => {
     console.log('🔍 Hasło użytkownika w bazie:', user.password);
     console.log('🔍 Hasło podane przez użytkownika:', password);
 
-    // ❗ Dodajemy testowe hashowanie
     const testHash = await bcrypt.hash(password, 10);
     console.log('🔍 Testowe hashowanie podanego hasła:', testHash);
 
@@ -73,19 +71,15 @@ export const login = async (req, res, next) => {
 
     console.log('✅ Hasło poprawne! Generowanie tokenów...');
 
-    // ✅ Generowanie `accessToken` i `refreshToken`
     const { accessToken, refreshToken } = generateTokens(user._id);
 
-    // ✅ Ustawienie dat ważności tokenów
     const accessTokenValidUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 min
     const refreshTokenValidUntil = new Date(
       Date.now() + 30 * 24 * 60 * 60 * 1000,
-    ); // 30 dni
+    );
 
-    // ✅ Usunięcie starej sesji użytkownika
     await Session.deleteMany({ userId: user._id });
 
-    // ✅ Tworzenie nowej sesji użytkownika
     const session = new Session({
       userId: user._id,
       accessToken,
@@ -96,14 +90,12 @@ export const login = async (req, res, next) => {
 
     await session.save();
 
-    // ✅ Ustawienie `refreshToken` w cookies
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
-    // ✅ Zwrócenie `accessToken` w odpowiedzi
     res.status(200).json({
       status: '200',
       message: 'Successfully logged in a user!',
@@ -196,7 +188,6 @@ export const logout = async (req, res, next) => {
 
     console.log('✅ Refresh token znaleziony:', refreshToken);
 
-    // ✅ Usunięcie sesji użytkownika
     const deletedSession = await Session.findOneAndDelete({ refreshToken });
     if (!deletedSession) {
       throw createError(401, 'Invalid refresh token');
@@ -204,13 +195,12 @@ export const logout = async (req, res, next) => {
 
     console.log('✅ Sesja usunięta z MongoDB:', deletedSession);
 
-    // ✅ Usunięcie ciasteczka `refreshToken`
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
     });
 
-    res.status(204).send(); // Brak treści w odpowiedzi
+    res.status(204).send();
 
     console.log('✅ Użytkownik poprawnie wylogowany!');
   } catch (error) {

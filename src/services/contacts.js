@@ -1,4 +1,3 @@
-// src/services/contacts.js
 import Contact from '../models/contactModel.js';
 
 export const createContact = async (contactData) => {
@@ -6,7 +5,7 @@ export const createContact = async (contactData) => {
 };
 
 export const getAllContacts = async () => {
-  return await Contact.find(); // Повертає всі контакти
+  return await Contact.find();
 };
 
 export const getContactById = async (id) => {

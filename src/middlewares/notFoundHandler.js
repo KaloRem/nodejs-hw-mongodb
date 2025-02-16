@@ -1,4 +1,3 @@
-// src/middlewares/notFoundHandler.js
 import createError from 'http-errors';
 
 function notFoundHandler(req, res, next) {

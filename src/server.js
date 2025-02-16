@@ -1,38 +1,45 @@
-// src/server.js
 import express from 'express';
+import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+import authRouter from './routes/auth.js';
 import contactsRouter from './routes/contacts.js';
-import errorHandler from './middlewares/errorHandler.js';
-import notFoundHandler from './middlewares/notFoundHandler.js';
+import './services/cloudinaryService.js';
 
 dotenv.config();
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-const setupServer = () => {
-  const app = express();
-  const PORT = process.env.PORT || 3000;
+app.use(cookieParser());
 
-  app.use(express.json());
+app.use((req, res, next) => {
+  console.log(`📢 ${req.method} ${req.url}`);
+  console.log('🔍 Headers:', req.headers);
+  console.log('📩 Body:', req.body);
+  console.log('🖼 File:', req.file);
+  console.log('📂 Files:', req.files);
+  next();
+});
 
-  // Лог кожного запиту для діагностики (опціонально)
-  app.use((req, res, next) => {
-    console.log(
-      `[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`,
-    );
-    next();
-  });
+app.use('/auth', authRouter);
+app.use('/contacts', contactsRouter);
 
-  // Маршрут для контактів
-  app.use('/contacts', contactsRouter);
+app.use((err, req, res, next) => {
+  res
+    .status(err.status || 500)
+    .json({ message: err.message || 'Internal server error' });
+});
 
-  // Middleware для обробки запитів на неіснуючі маршрути
-  app.use(notFoundHandler);
+app.use((req, res, next) => {
+  res.status(404).json({ message: 'Not Found!' });
+});
 
-  // Middleware для обробки помилок
-  app.use(errorHandler);
+mongoose
+  .connect(process.env.MONGODB_URL)
+  .then(() => {
+    console.log('Database connected');
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch((err) => console.error('Database connection error:', err));
 
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-};
-
-export default setupServer;
+export default app;

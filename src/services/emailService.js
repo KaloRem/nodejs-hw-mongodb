@@ -23,17 +23,13 @@ const transporter = nodemailer.createTransport({
 
 export const sendResetEmail = async (email, token) => {
   try {
-    // ✅ Sprawdzenie, czy APP_DOMAIN istnieje
     if (!process.env.APP_DOMAIN) {
       throw new Error('APP_DOMAIN is not defined in .env!');
     }
-
-    // ✅ Tworzenie linku resetowania hasła
     const resetLink = `${process.env.APP_DOMAIN}/reset-password?token=${token}`;
 
     console.log('🔗 Link resetowania:', resetLink); // Debugowanie
 
-    // ✅ Wysyłanie e-maila
     await transporter.sendMail({
       from: process.env.SMTP_FROM,
       to: email,

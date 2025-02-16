@@ -2,7 +2,6 @@ import Contact from '../models/contactModel.js';
 import cloudinary from '../services/cloudinaryService.js';
 import createError from 'http-errors';
 
-// Pobieranie kontaktów zalogowanego użytkownika
 export const getContacts = async (req, res, next) => {
   try {
     const {
@@ -16,7 +15,6 @@ export const getContacts = async (req, res, next) => {
 
     const skip = (page - 1) * perPage;
 
-    // Filtr tylko dla kontaktów zalogowanego użytkownika
     const filter = { userId: req.user._id };
 
     if (type) {
@@ -26,10 +24,8 @@ export const getContacts = async (req, res, next) => {
       filter.isFavourite = isFavourite === 'true';
     }
 
-    // Liczenie kontaktów użytkownika
     const totalItems = await Contact.countDocuments(filter);
 
-    // Pobieranie kontaktów użytkownika
     const contacts = await Contact.find(filter)
       .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
       .limit(Number(perPage))
@@ -55,7 +51,6 @@ export const getContacts = async (req, res, next) => {
   }
 };
 
-// Pobieranie jednego kontaktu użytkownika
 export const getContactById = async (req, res, next) => {
   try {
     const { contactId } = req.params;
@@ -80,32 +75,41 @@ export const getContactById = async (req, res, next) => {
   }
 };
 
-// Tworzenie nowego kontaktu (dodanie userId)
 export const createContact = async (req, res, next) => {
   try {
     console.log('📩 Otrzymane dane z Postmana:', req.body);
     console.log('🖼 Otrzymany plik:', req.file);
+
+    if (!req.body.name) {
+      console.error('❌ `name` jest pusty! Problem z `multer`?');
+      return res.status(400).json({ message: '"name" is required' });
+    }
+
     const { name, phoneNumber, email, contactType } = req.body;
     let photoUrl = null;
 
-    // Obsługa przesyłania zdjęcia do Cloudinary
     if (req.file) {
-      console.log('📤 Przesyłanie pliku na Cloudinary...');
-      const uploadResult = await new Promise((resolve, reject) => {
-        cloudinary.uploader
-          .upload_stream({ folder: 'contacts' }, (error, result) => {
-            if (error) {
-              console.error('❌ Błąd przesyłania na Cloudinary:', error);
-              reject(createError(500, 'Error uploading image'));
-            } else {
-              console.log('✅ Przesłano zdjęcie:', result.secure_url);
-              resolve(result.secure_url);
-            }
-          })
-          .end(req.file.buffer);
-      });
-
-      photoUrl = uploadResult;
+      try {
+        console.log('📤 Przesyłanie pliku na Cloudinary...');
+        photoUrl = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: 'contacts' },
+            (error, result) => {
+              if (error) {
+                console.error('❌ Błąd przesyłania na Cloudinary:', error);
+                reject(createError(500, 'Błąd przesyłania zdjęcia'));
+              } else {
+                console.log('✅ Przesłano zdjęcie:', result.secure_url);
+                resolve(result.secure_url);
+              }
+            },
+          );
+          stream.end(req.file.buffer);
+        });
+      } catch (error) {
+        console.error('❌ Błąd Cloudinary:', error);
+        return next(createError(500, 'Nie udało się przesłać zdjęcia'));
+      }
     }
 
     const newContact = await Contact.create({
@@ -114,7 +118,7 @@ export const createContact = async (req, res, next) => {
       email,
       contactType,
       userId: req.user._id,
-      photo: photoUrl, // Przypisujemy link do zdjęcia
+      photo: photoUrl,
     });
 
     res.status(201).json({
@@ -128,13 +132,42 @@ export const createContact = async (req, res, next) => {
   }
 };
 
-// Aktualizacja kontaktu (tylko jeśli kontakt należy do użytkownika)
 export const updateContact = async (req, res, next) => {
   try {
     const { contactId } = req.params;
+    const { name, phoneNumber, email, contactType } = req.body;
+
+    let updateData = { name, phoneNumber, email, contactType };
+
+    if (req.file) {
+      try {
+        console.log('📤 Przesyłanie nowego zdjęcia na Cloudinary...');
+        const photoUrl = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: 'contacts' },
+            (error, result) => {
+              if (error) {
+                console.error('❌ Błąd przesyłania na Cloudinary:', error);
+                reject(createError(500, 'Błąd przesyłania zdjęcia'));
+              } else {
+                console.log('✅ Przesłano nowe zdjęcie:', result.secure_url);
+                resolve(result.secure_url);
+              }
+            },
+          );
+          stream.end(req.file.buffer);
+        });
+
+        updateData.photo = photoUrl;
+      } catch (error) {
+        console.error('❌ Błąd Cloudinary:', error);
+        return next(createError(500, 'Nie udało się przesłać zdjęcia'));
+      }
+    }
+
     const updatedContact = await Contact.findOneAndUpdate(
       { _id: contactId, userId: req.user._id },
-      req.body,
+      updateData,
       {
         new: true,
         runValidators: true,
@@ -142,9 +175,7 @@ export const updateContact = async (req, res, next) => {
     );
 
     if (!updatedContact) {
-      return res
-        .status(404)
-        .json({ status: 404, message: 'Contact not found!' });
+      return next(createError(404, 'Kontakt nie został znaleziony!'));
     }
 
     res.status(200).json({
@@ -157,7 +188,6 @@ export const updateContact = async (req, res, next) => {
   }
 };
 
-// Usuwanie kontaktu (tylko jeśli kontakt należy do użytkownika)
 export const deleteContactById = async (req, res, next) => {
   try {
     const { contactId } = req.params;
@@ -167,9 +197,7 @@ export const deleteContactById = async (req, res, next) => {
     });
 
     if (!deletedContact) {
-      return res
-        .status(404)
-        .json({ status: 404, message: 'Contact not found!' });
+      return next(createError(404, 'Kontakt nie został znaleziony!'));
     }
 
     res.status(204).send();

@@ -21,7 +21,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// Hashowanie hasła przed zapisem
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password') || this.password.startsWith('$2a$')) {
     console.log('⚠️ Hasło już jest zahaszowane – pomijam.');

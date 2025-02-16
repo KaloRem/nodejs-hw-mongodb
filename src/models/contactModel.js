@@ -9,14 +9,14 @@ const contactSchema = new mongoose.Schema(
     contactType: { type: String, required: true },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User', // Powiązanie z użytkownikiem
+      ref: 'User',
       required: true,
     },
     photo: { type: String },
   },
   {
-    versionKey: false, // Вимикаємо "__v"
-    timestamps: true, // Додаємо поля "createdAt" і "updatedAt"
+    versionKey: false,
+    timestamps: true,
   },
 );
 

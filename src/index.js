@@ -1,5 +1,4 @@
 import express from 'express';
-import multer from 'multer';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
@@ -14,11 +13,9 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use('/', contactsRouter);
-app.use('/auth', authRouter);
 
-const upload = multer({ dest: 'uploads/' });
-export { app, upload };
+app.use('/auth', authRouter);
+app.use('/contacts', contactsRouter);
 
 app.use((err, req, res, next) => {
   res
@@ -34,13 +31,8 @@ mongoose
   .connect(process.env.MONGODB_URL)
   .then(() => {
     console.log('Database connected');
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
   })
   .catch((err) => console.error('Database connection error:', err));
 
-console.log('🔍 CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME);
-console.log('🔍 CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY);
-console.log(
-  '🔍 CLOUDINARY_API_SECRET:',
-  process.env.CLOUDINARY_API_SECRET ? 'OK' : 'Brak wartości!',
-);
+export default app;

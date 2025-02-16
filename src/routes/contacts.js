@@ -1,7 +1,7 @@
 import express from 'express';
 import { validateBody } from '../middlewares/validateBody.js';
 import { isValidId } from '../middlewares/isValidId.js';
-import authenticate from '../middlewares/authenticate.js'; // Import middleware
+import authenticate from '../middlewares/authenticate.js';
 import {
   getContacts,
   getContactById,
@@ -17,27 +17,27 @@ import upload from '../middlewares/uploadMiddleware.js';
 
 const router = express.Router();
 
-router.get('/contacts', authenticate, getContacts); // Pobranie wszystkich kontaktów (tylko dla zalogowanych użytkowników)
-router.get('/contacts/:contactId', authenticate, isValidId, getContactById); // Pobranie kontaktu po ID
+router.get('/', authenticate, getContacts);
+
+router.get('/:contactId', authenticate, isValidId, getContactById);
+
 router.post(
-  '/contacts',
+  '/',
   authenticate,
-  validateBody(contactSchema),
   upload.single('photo'),
+  validateBody(contactSchema),
   createContact,
-); // Tworzenie nowego kontaktu
+);
+
 router.patch(
-  '/contacts/:contactId',
+  '/:contactId',
   authenticate,
   isValidId,
+  upload.single('photo'),
   validateBody(contactUpdateSchema),
   updateContact,
-); // Aktualizacja kontaktu
-router.delete(
-  '/contacts/:contactId',
-  authenticate,
-  isValidId,
-  deleteContactById,
-); // Usunięcie kontaktu
+);
+
+router.delete('/:contactId', authenticate, isValidId, deleteContactById);
 
 export default router;

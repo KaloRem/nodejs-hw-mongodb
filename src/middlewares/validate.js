@@ -10,4 +10,4 @@ const validate = (schema) => (req, res, next) => {
   next();
 };
 
-export default validate; // ✅ Poprawny eksport jako default!
+export default validate;

@@ -17,7 +17,6 @@ export const registerSchema = Joi.object({
 });
 
 export const loginSchema = Joi.object({
-  // ✅ Upewnij się, że ta linia istnieje!
   email: Joi.string().email().required().messages({
     'string.empty': 'Email is required',
     'string.email': 'Invalid email format',
