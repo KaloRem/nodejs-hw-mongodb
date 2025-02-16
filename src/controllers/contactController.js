@@ -1,4 +1,6 @@
 import Contact from '../models/contactModel.js';
+import cloudinary from '../services/cloudinaryService.js';
+import createError from 'http-errors';
 
 // Pobieranie kontaktów zalogowanego użytkownika
 export const getContacts = async (req, res, next) => {
@@ -81,9 +83,38 @@ export const getContactById = async (req, res, next) => {
 // Tworzenie nowego kontaktu (dodanie userId)
 export const createContact = async (req, res, next) => {
   try {
+    console.log('📩 Otrzymane dane z Postmana:', req.body);
+    console.log('🖼 Otrzymany plik:', req.file);
+    const { name, phoneNumber, email, contactType } = req.body;
+    let photoUrl = null;
+
+    // Obsługa przesyłania zdjęcia do Cloudinary
+    if (req.file) {
+      console.log('📤 Przesyłanie pliku na Cloudinary...');
+      const uploadResult = await new Promise((resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream({ folder: 'contacts' }, (error, result) => {
+            if (error) {
+              console.error('❌ Błąd przesyłania na Cloudinary:', error);
+              reject(createError(500, 'Error uploading image'));
+            } else {
+              console.log('✅ Przesłano zdjęcie:', result.secure_url);
+              resolve(result.secure_url);
+            }
+          })
+          .end(req.file.buffer);
+      });
+
+      photoUrl = uploadResult;
+    }
+
     const newContact = await Contact.create({
-      ...req.body,
+      name,
+      phoneNumber,
+      email,
+      contactType,
       userId: req.user._id,
+      photo: photoUrl, // Przypisujemy link do zdjęcia
     });
 
     res.status(201).json({
@@ -92,6 +123,7 @@ export const createContact = async (req, res, next) => {
       data: newContact,
     });
   } catch (error) {
+    console.error('❌ Błąd tworzenia kontaktu:', error);
     next(error);
   }
 };

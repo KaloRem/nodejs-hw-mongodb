@@ -13,6 +13,7 @@ import {
   contactSchema,
   contactUpdateSchema,
 } from '../models/validationSchemas.js';
+import upload from '../middlewares/uploadMiddleware.js';
 
 const router = express.Router();
 
@@ -22,6 +23,7 @@ router.post(
   '/contacts',
   authenticate,
   validateBody(contactSchema),
+  upload.single('photo'),
   createContact,
 ); // Tworzenie nowego kontaktu
 router.patch(

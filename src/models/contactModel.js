@@ -12,6 +12,7 @@ const contactSchema = new mongoose.Schema(
       ref: 'User', // Powiązanie z użytkownikiem
       required: true,
     },
+    photo: { type: String },
   },
   {
     versionKey: false, // Вимикаємо "__v"
