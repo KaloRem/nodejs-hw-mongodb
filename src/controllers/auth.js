@@ -3,6 +3,7 @@ import User from '../models/userModel.js';
 import Session from '../models/session.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import { sendResetEmail } from '../services/emailService.js';
 
 const generateTokens = (userId) => {
   const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
@@ -14,7 +15,6 @@ const generateTokens = (userId) => {
   return { accessToken, refreshToken };
 };
 
-// ✅ Rejestracja użytkownika
 export const register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
@@ -44,7 +44,6 @@ export const register = async (req, res, next) => {
   }
 };
 
-// ✅ Logowanie użytkownika
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -57,7 +56,16 @@ export const login = async (req, res, next) => {
       throw createError(401, 'Invalid email or password');
     }
 
+    console.log('✅ Użytkownik znaleziony:', user);
+    console.log('🔍 Hasło użytkownika w bazie:', user.password);
+    console.log('🔍 Hasło podane przez użytkownika:', password);
+
+    // ❗ Dodajemy testowe hashowanie
+    const testHash = await bcrypt.hash(password, 10);
+    console.log('🔍 Testowe hashowanie podanego hasła:', testHash);
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log('🔍 Wynik porównania hasła:', isPasswordValid);
     if (!isPasswordValid) {
       console.log('❌ Błędne hasło dla:', email);
       throw createError(401, 'Invalid email or password');
@@ -112,7 +120,6 @@ export const login = async (req, res, next) => {
   }
 };
 
-// ✅ Odświeżanie tokena
 export const refresh = async (req, res, next) => {
   try {
     console.log('🔹 Cookies w `refresh`:', req.cookies); // ✅ Sprawdzenie cookies
@@ -178,7 +185,6 @@ export const refresh = async (req, res, next) => {
   }
 };
 
-// ✅ Wylogowanie użytkownika
 export const logout = async (req, res, next) => {
   try {
     console.log('🔹 Próba wylogowania, cookies:', req.cookies);
@@ -210,5 +216,76 @@ export const logout = async (req, res, next) => {
   } catch (error) {
     console.error('❌ Błąd wylogowania:', error);
     next(createError(401, 'Could not logout user'));
+  }
+};
+
+export const sendResetPasswordEmail = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw createError(404, 'User not found!');
+    }
+
+    const token = jwt.sign({ email }, process.env.JWT_SECRET, {
+      expiresIn: '5m',
+    });
+
+    await sendResetEmail(email, token);
+
+    res.status(200).json({
+      status: 200,
+      message: 'Reset password email has been successfully sent.',
+      data: {},
+    });
+  } catch (error) {
+    console.error('❌ Błąd', error);
+    next(createError(500, 'Failed to send the email, please try again later.'));
+  }
+};
+
+export const resetPassword = async (req, res, next) => {
+  try {
+    const { token, password } = req.body;
+
+    console.log('🔑 Otrzymany token:', token);
+    console.log('🔒 Nowe hasło:', password);
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log('✅ Token zweryfikowany:', decoded);
+    } catch (error) {
+      console.error('❌ Błąd weryfikacji tokena:', error);
+      throw createError(401, 'Token is expired or invalid.');
+    }
+
+    const user = await User.findOne({ email: decoded.email });
+    if (!user) {
+      throw createError(404, 'User not found!');
+    }
+
+    console.log('🔓 Hasło przed hashowaniem:', password);
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    console.log('🔍 Haszowane hasło przed zapisem:', hashedPassword);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    console.log('🔒 Hasło po hashowaniu:', hashedPassword);
+
+    await Session.deleteMany({ userId: user._id });
+
+    res.status(200).json({
+      status: 200,
+      message: 'Password has been successfully reset.',
+      data: {},
+    });
+    console.log('✅ Hasło zresetowane dla:', user.email);
+  } catch (error) {
+    console.error('❌ Błąd resetowania hasła:', error);
+    next(error);
   }
 };
