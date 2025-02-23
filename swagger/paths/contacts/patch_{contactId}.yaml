@@ -17,7 +17,7 @@ requestBody:
   content:
     application/json:
       schema:
-        $ref: ../../components/schemas.yaml#/schemas/Contact
+        $ref: '#/components/schemas/Contact'
 responses:
   '200':
     description: Kontakt został zaktualizowany

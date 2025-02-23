@@ -14,21 +14,31 @@ tags:
     description: Operacje związane z kontaktami
 paths:
   /contacts:
-    $ref: ../swagger/paths/contacts/get.yaml
+    get:
+      $ref: '#/components/schemas/Contact'
+    post:
+      $ref: '#/components/schemas/Contact'
   /contacts/{contactId}:
     get:
-      $ref: ../swagger/paths/contacts/{contactId}/get.yaml
+      $ref: '#/components/schemas/Contact'
     patch:
-      $ref: ../swagger/paths/contacts/{contactId}/patch.yaml
+      $ref: '#/components/schemas/Contact'
     delete:
-      $ref: ../swagger/paths/contacts/{contactId}/delete.yaml
-  /contacts:
-    post:
-      $ref: ../swagger/paths/contacts/post.yaml
+      $ref: '#/components/schemas/Contact'
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
   schemas:
-    $ref: ../swagger/components/schemas.yaml
+    Contact:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string

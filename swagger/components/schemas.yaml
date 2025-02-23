@@ -1,17 +1,11 @@
-schemas:
-  Contact:
-    type: object
-    properties:
-      id:
-        type: string
-        description: Unikalny identyfikator kontaktu
-      name:
-        type: string
-        description: Imię i nazwisko kontaktu
-      email:
-        type: string
-        format: email
-        description: Adres e-mail kontaktu
-      phone:
-        type: string
-        description: Numer telefonu kontaktu
+Contact:
+  type: object
+  properties:
+    id:
+      type: string
+    name:
+      type: string
+    email:
+      type: string
+    phone:
+      type: string
