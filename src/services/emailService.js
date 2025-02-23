@@ -34,7 +34,14 @@ export const sendResetEmail = async (email, token) => {
       from: process.env.SMTP_FROM,
       to: email,
       subject: 'Reset Your Password',
-      text: `Click the link below to reset your password:\n\n${resetLink}`,
+      text: `${resetLink}`,
+      html: `<a href="${resetLink}" target="_blank">${resetLink}</a>`,
+      // text: `Click the link below to reset your password:\n\n${resetLink}`,
+      // html: `
+      //   <p>Click the link below to reset your password:</p>
+      //   <p><a href="${resetLink}" target="_blank">${resetLink}</a></p>
+      //   <p>If you did not request a password reset, please ignore this email.</p>
+      // `,
     });
 
     console.log(`✅ Email z resetem wysłany do: ${email}`);
