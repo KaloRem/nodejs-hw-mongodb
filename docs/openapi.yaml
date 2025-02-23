@@ -9,7 +9,7 @@ info:
 
 servers:
   - url: http://localhost:3000
-  - url: https://twoja-aplikacja.onrender.com
+  - url: https://nodejs-hw-mongodb-swagger-8jd1.onrender.com
 
 tags:
   - name: Contacts
