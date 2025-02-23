@@ -26,6 +26,6 @@ responses:
         schema:
           type: array
           items:
-            $ref: '#/components/schemas/Contact'
+            $ref: '../../components/schemas.yaml#/Contact'
   '401':
     description: Nieautoryzowany dostęp

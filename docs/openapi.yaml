@@ -6,25 +6,30 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
+
 servers:
   - url: http://localhost:3000
   - url: https://twoja-aplikacja.onrender.com
+
 tags:
   - name: Contacts
     description: Operacje związane z kontaktami
+
 paths:
   /contacts:
     get:
-      $ref: '#/components/schemas/Contact'
+      $ref: ../swagger/paths/contacts/get.yaml
     post:
-      $ref: '#/components/schemas/Contact'
+      $ref: ../swagger/paths/contacts/post.yaml
+
   /contacts/{contactId}:
     get:
-      $ref: '#/components/schemas/Contact'
+      $ref: ../swagger/paths/contacts/get_{contactId}.yaml
     patch:
-      $ref: '#/components/schemas/Contact'
+      $ref: ../swagger/paths/contacts/patch_{contactId}.yaml
     delete:
-      $ref: '#/components/schemas/Contact'
+      $ref: ../swagger/paths/contacts/delete_{contactId}.yaml
+
 components:
   securitySchemes:
     bearerAuth:
@@ -32,13 +37,4 @@ components:
       scheme: bearer
   schemas:
     Contact:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        email:
-          type: string
-        phone:
-          type: string
+      $ref: '../swagger/components/schemas.yaml#/Contact'

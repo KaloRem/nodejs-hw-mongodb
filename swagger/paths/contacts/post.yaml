@@ -10,13 +10,13 @@ requestBody:
   content:
     application/json:
       schema:
-        $ref: '#/components/schemas/Contact'
+        $ref: '../../components/schemas.yaml#/Contact'
 responses:
   '201':
     description: Kontakt został utworzony
     content:
       application/json:
         schema:
-          $ref: '#/components/schemas/Contact'
+          $ref: '../../components/schemas.yaml#/Contact'
   '400':
     description: Nieprawidłowe dane wejściowe

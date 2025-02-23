@@ -18,6 +18,6 @@ responses:
     content:
       application/json:
         schema:
-          $ref: '#/components/schemas/Contact'
+          $ref: '../../components/schemas.yaml#/Contact'
   '404':
     description: Kontakt nie znaleziony
