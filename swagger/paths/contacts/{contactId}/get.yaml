@@ -1,0 +1,23 @@
+tags:
+  - Contacts
+summary: Pobierz informacje o konkretnym kontakcie
+operationId: getContactById
+description: Pobiera szczegółowe informacje o kontakcie na podstawie jego ID.
+security:
+  - bearerAuth: []
+parameters:
+  - name: contactId
+    in: path
+    required: true
+    schema:
+      type: string
+    description: ID kontaktu, który chcesz pobrać
+responses:
+  '200':
+    description: Szczegóły kontaktu
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas.yaml#/schemas/Contact
+  '404':
+    description: Kontakt nie znaleziony

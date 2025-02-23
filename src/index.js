@@ -4,7 +4,9 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import authRouter from './routes/auth.js';
 import contactsRouter from './routes/contacts.js';
-import './services/cloudinaryService.js';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
+import path from 'path';
 
 dotenv.config();
 const app = express();
@@ -14,9 +16,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// Serwowanie dokumentacji Swagger UI
+const swaggerDocument = YAML.load(
+  path.join(process.cwd(), '/docs/openapi.yaml'),
+);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 app.use('/auth', authRouter);
 app.use('/contacts', contactsRouter);
 
+// Obsługa błędów
 app.use((err, req, res, next) => {
   res
     .status(err.status || 500)
@@ -27,10 +36,11 @@ app.use((req, res, next) => {
   res.status(404).json({ message: 'Not Found!' });
 });
 
+// Połączenie z MongoDB
 mongoose
   .connect(process.env.MONGODB_URL)
   .then(() => {
-    console.log('Database connected');
+    console.log('✅ Database connected');
     app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
   })
   .catch((err) => console.error('Database connection error:', err));

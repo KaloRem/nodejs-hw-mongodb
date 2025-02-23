@@ -1,0 +1,31 @@
+tags:
+  - Contacts
+summary: Pobierz listę kontaktów
+operationId: getContacts
+description: Pobiera listę wszystkich kontaktów
+security:
+  - bearerAuth: []
+parameters:
+  - name: limit
+    in: query
+    schema:
+      type: integer
+      default: 10
+    description: Ile kontaktów pobrać (domyślnie 10)
+  - name: page
+    in: query
+    schema:
+      type: integer
+      default: 1
+    description: Którą stronę pobrać (domyślnie 1)
+responses:
+  '200':
+    description: Lista kontaktów
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            $ref: ../../components/schemas.yaml#/schemas/Contact
+  '401':
+    description: Nieautoryzowany dostęp

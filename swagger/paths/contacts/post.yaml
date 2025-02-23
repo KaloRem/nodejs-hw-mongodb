@@ -1,0 +1,22 @@
+tags:
+  - Contacts
+summary: Dodaj nowy kontakt
+operationId: createContact
+description: Tworzy nowy kontakt i zwraca jego szczegóły
+security:
+  - bearerAuth: []
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: ../../components/schemas.yaml#/schemas/Contact
+responses:
+  '201':
+    description: Kontakt został utworzony
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas.yaml#/schemas/Contact
+  '400':
+    description: Nieprawidłowe dane wejściowe
