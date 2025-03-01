@@ -8,6 +8,7 @@ import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import path from 'path';
 import cors from 'cors';
+// import jwt from 'jsonwebtoken';
 
 dotenv.config();
 const app = express();
@@ -34,6 +35,23 @@ app.use('/swagger', express.static(path.join(process.cwd(), 'swagger')));
 
 app.use('/auth', authRouter);
 app.use('/contacts', contactsRouter);
+
+// const verifyToken = (req, res, next) => {
+//   const authHeader = req.headers.authorization;
+//   if (!authHeader) {
+//     return res.status(401).json({ message: 'Brak tokena autoryzacji!' });
+//   }
+
+//   const token = authHeader.split(' ')[1]; // "Bearer TOKEN"
+//   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+//     if (err) return res.status(403).json({ message: 'Token nieważny!' });
+
+//     req.user = user;
+//     next();
+//   });
+// };
+
+// app.use('/contacts', verifyToken, contactsRouter);
 
 // Obsługa błędów
 app.use((err, req, res, next) => {

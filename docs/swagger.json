@@ -12,11 +12,11 @@
   "servers": [
     {
       "url": "http://localhost:3000",
-      "description": "Lokalny serwer"
+      "description": "Test server"
     },
     {
       "url": "https://nodejs-hw-mongodb-swagger-8jd1.onrender.com",
-      "description": "Serwer produkcyjny"
+      "description": "Main server"
     }
   ],
   "tags": [
