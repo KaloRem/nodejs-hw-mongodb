@@ -13,7 +13,13 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: '*', // Możesz wpisać konkretną domenę np. 'http://localhost:3000'
+    methods: 'GET,POST,PUT,DELETE,PATCH,OPTIONS',
+    allowedHeaders: 'Content-Type,Authorization',
+  }),
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -24,6 +30,7 @@ const swaggerDocument = YAML.load(
   path.join(process.cwd(), '/docs/openapi.yaml'),
 );
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/swagger', express.static(path.join(process.cwd(), 'swagger')));
 
 app.use('/auth', authRouter);
 app.use('/contacts', contactsRouter);
