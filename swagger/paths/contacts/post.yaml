@@ -14,7 +14,6 @@ requestBody:
         required:
           - name
           - phoneNumber
-          - email
           - contactType
         properties:
           name:
@@ -26,12 +25,21 @@ requestBody:
             type: string
             example: '+380000000000'
           email:
-            description: Contact email address
+            description: Contact email address (optional)
             type: string
             example: bogdan.paslawskii@gmail.com
           contactType:
             description: 'Contact type'
             enum: ['work', 'personal', 'home']
+          isFavourite:
+            description: 'Is this contact a favorite?'
+            type: boolean
+            example: false
+          photo:
+            description: 'Profile photo of contact (optional)'
+            type: string
+            format: binary
+            example: 'https://res.cloudinary.com/dihpekuis/image/upload/v1739793134/contacts/xc3p6tq8wlverbybdnxx.jpg'
 
 responses:
   '201':

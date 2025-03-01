@@ -206,7 +206,6 @@
                 "required": [
                   "name",
                   "phoneNumber",
-                  "email",
                   "contactType"
                 ],
                 "properties": {
@@ -221,7 +220,7 @@
                     "example": "+380000000000"
                   },
                   "email": {
-                    "description": "Contact email address",
+                    "description": "Contact email address (optional)",
                     "type": "string",
                     "example": "bogdan.paslawskii@gmail.com"
                   },
@@ -232,6 +231,17 @@
                       "personal",
                       "home"
                     ]
+                  },
+                  "isFavourite": {
+                    "description": "Is this contact a favorite?",
+                    "type": "boolean",
+                    "example": false
+                  },
+                  "photo": {
+                    "description": "Profile photo of contact (optional)",
+                    "type": "string",
+                    "format": "binary",
+                    "example": "https://res.cloudinary.com/dihpekuis/image/upload/v1739793134/contacts/xc3p6tq8wlverbybdnxx.jpg"
                   }
                 }
               }
@@ -374,29 +384,39 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
                 "type": "object",
                 "properties": {
                   "name": {
                     "type": "string",
-                    "example": "Ivan Pele"
+                    "example": "Bogdan Paslawski"
                   },
                   "phoneNumber": {
                     "type": "string",
-                    "example": 380998877900
+                    "example": 380000000000
                   },
                   "email": {
                     "type": "string",
-                    "example": "ivanpele@gmail.com"
+                    "example": "bogdan.paslawskii@gmail.com"
                   },
                   "contactType": {
                     "type": "string",
+                    "enum": [
+                      "work",
+                      "personal",
+                      "home"
+                    ],
                     "example": "home"
                   },
                   "isFavourite": {
                     "type": "boolean",
                     "example": false
+                  },
+                  "photo": {
+                    "type": "string",
+                    "format": "binary",
+                    "example": "https://res.cloudinary.com/dihpekuis/image/upload/v1739793134/contacts/xc3p6tq8wlverbybdnxx.jpg"
                   }
                 },
                 "required": []
@@ -472,34 +492,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successfully deleted the contact",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "status",
-                    "message",
-                    "data"
-                  ],
-                  "properties": {
-                    "status": {
-                      "type": "integer",
-                      "example": 200
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Contact successfully deleted"
-                    },
-                    "data": {
-                      "type": "object",
-                      "$ref": "#/components/schemas/contact"
-                    }
-                  }
-                }
-              }
-            }
+          "204": {
+            "description": "Successfully deleted the contact"
           },
           "400": {
             "$ref": "#/components/responses/400"
@@ -532,7 +526,6 @@
           "_id",
           "name",
           "phoneNumber",
-          "email",
           "isFavourite",
           "contactType"
         ],
@@ -553,7 +546,7 @@
             "example": 380000000000
           },
           "email": {
-            "description": "Contact's email",
+            "description": "Contact's email (optional)",
             "type": "string",
             "example": "bogdan.paslawskii@gmail.com"
           },
@@ -572,8 +565,9 @@
             ]
           },
           "photo": {
-            "description": "Link to contact's photo",
+            "description": "Link to contact's photo (optional)",
             "type": "string",
+            "format": "binary",
             "example": "https://res.cloudinary.com/dihpekuis/image/upload/v1739793134/contacts/xc3p6tq8wlverbybdnxx.jpg"
           }
         }

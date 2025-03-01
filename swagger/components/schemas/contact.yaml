@@ -3,7 +3,6 @@ required:
   - _id
   - name
   - phoneNumber
-  - email
   - isFavourite
   - contactType
 properties:
@@ -20,7 +19,7 @@ properties:
     type: string
     example: +380000000000
   email:
-    description: "Contact's email"
+    description: "Contact's email (optional)"
     type: string
     example: bogdan.paslawskii@gmail.com
   isFavourite:
@@ -32,6 +31,7 @@ properties:
     type: string
     enum: ['personal', 'home', 'work']
   photo:
-    description: "Link to contact's photo"
+    description: "Link to contact's photo (optional)"
     type: string
+    format: binary
     example: https://res.cloudinary.com/dihpekuis/image/upload/v1739793134/contacts/xc3p6tq8wlverbybdnxx.jpg
