@@ -9,7 +9,9 @@ info:
 
 servers:
   - url: http://localhost:3000
+    description: Lokalny serwer
   - url: https://nodejs-hw-mongodb-swagger-8jd1.onrender.com
+    description: Serwer produkcyjny
 
 tags:
   - name: Contacts
@@ -24,17 +26,15 @@ paths:
 
   /contacts/{contactId}:
     get:
-      $ref: ../swagger/paths/contacts/get_{contactId}.yaml
+      $ref: ../swagger/paths/contacts/get_contactId.yaml
     patch:
-      $ref: ../swagger/paths/contacts/patch_{contactId}.yaml
+      $ref: ../swagger/paths/contacts/patch_contactId.yaml
     delete:
-      $ref: ../swagger/paths/contacts/delete_{contactId}.yaml
+      $ref: ../swagger/paths/contacts/delete_contactId.yaml
 
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
-  schemas:
-    Contact:
-      $ref: '../swagger/components/schemas.yaml#/Contact'
+    $ref: '../swagger/components/schemas.yaml'
