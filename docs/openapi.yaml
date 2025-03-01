@@ -11,6 +11,9 @@ tags:
   - name: Contacts
     description: Operations with contacts
 
+security:
+  - bearerAuth: []
+
 servers:
   - url: http://localhost:3000
     description: Test server

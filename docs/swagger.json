@@ -19,6 +19,11 @@
       "description": "Main server"
     }
   ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
   "tags": [
     {
       "name": "Contacts",

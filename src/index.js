@@ -26,11 +26,21 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+const swaggerOptions = {
+  swaggerOptions: {
+    persistAuthorization: true, // Zapamiętuje token po autoryzacji
+  },
+};
+
 // Serwowanie dokumentacji Swagger UI
 const swaggerDocument = YAML.load(
   path.join(process.cwd(), '/docs/openapi.yaml'),
 );
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument, swaggerOptions),
+);
 app.use('/swagger', express.static(path.join(process.cwd(), 'swagger')));
 
 app.use('/auth', authRouter);
