@@ -1,11 +1,15 @@
 openapi: 3.1.0
 info:
   version: 1.0.0
-  title: Node.js API
-  description: API do obsługi kontaktów z wykorzystaniem MongoDB i Swagger UI
+  title: Contacts Manager App
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
+  description: Contacts operations
+
+tags:
+  - name: Contacts
+    description: Operations with contacts
 
 servers:
   - url: http://localhost:3000
@@ -13,28 +17,22 @@ servers:
   - url: https://nodejs-hw-mongodb-swagger-8jd1.onrender.com
     description: Serwer produkcyjny
 
-tags:
-  - name: Contacts
-    description: Operacje związane z kontaktami
-
 paths:
   /contacts:
     get:
-      $ref: ../swagger/paths/contacts/get.yaml
+      $ref: '../swagger/paths/contacts/get.yaml'
     post:
-      $ref: ../swagger/paths/contacts/post.yaml
-
-  /contacts/{contactId}:
+      $ref: '../swagger/paths/contacts/post.yaml'
+  /contacts/{id}:
     get:
-      $ref: ../swagger/paths/contacts/get_contactId.yaml
+      $ref: '../swagger/paths/contacts/{id}/get.yaml'
     patch:
-      $ref: ../swagger/paths/contacts/patch_contactId.yaml
+      $ref: '../swagger/paths/contacts/{id}/patch.yaml'
     delete:
-      $ref: ../swagger/paths/contacts/delete_contactId.yaml
+      $ref: '../swagger/paths/contacts/{id}/delete.yaml'
 
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
-    $ref: '../swagger/components/schemas.yaml'
