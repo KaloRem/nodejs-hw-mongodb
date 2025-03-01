@@ -213,17 +213,17 @@
                   "name": {
                     "description": "Contact name",
                     "type": "string",
-                    "example": "Ivan Pele"
+                    "example": "Bogdan Paslawski"
                   },
                   "phoneNumber": {
                     "description": "Contact phone",
                     "type": "string",
-                    "example": "+380975554532"
+                    "example": "+380000000000"
                   },
                   "email": {
                     "description": "Contact email address",
                     "type": "string",
-                    "example": "ivanpele@gmail.com"
+                    "example": "bogdan.paslawskii@gmail.com"
                   },
                   "contactType": {
                     "description": "Contact type",
@@ -301,7 +301,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "67ca67e7ae7f10c25b566655"
+            "example": "67b322e09613d7e62762f258"
           }
         ],
         "responses": {
@@ -368,7 +368,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "67ca67e7ae7f10c25b566655"
+            "example": "67b322e09613d7e62762f258"
           }
         ],
         "requestBody": {
@@ -468,7 +468,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "67ca67e7ae7f10c25b566655"
+            "example": "67b322e09613d7e62762f258"
           }
         ],
         "responses": {
@@ -543,22 +543,22 @@
           "_id": {
             "description": "Contact's id",
             "type": "string",
-            "example": 1.1111111111111111e+23
+            "example": "67bb2094b5984df975b326ad"
           },
           "name": {
             "description": "Contact's name",
             "type": "string",
-            "example": "Test Test"
+            "example": "Bogdan Paslawski"
           },
           "phoneNumber": {
             "description": "Contact's number",
             "type": "string",
-            "example": 38111111111
+            "example": 380000000000
           },
           "email": {
             "description": "Contact's email",
             "type": "string",
-            "example": "test@gmail.com"
+            "example": "bogdan.paslawskii@gmail.com"
           },
           "isFavourite": {
             "description": "Whether the contact is favorite or not",
@@ -577,7 +577,7 @@
           "photo": {
             "description": "Link to contact's photo",
             "type": "string",
-            "example": "https://res.cloudinary.com/111111111/image/upload/v1111111111111111111111111111111.jpg"
+            "example": "https://res.cloudinary.com/dihpekuis/image/upload/v1739793134/contacts/xc3p6tq8wlverbybdnxx.jpg"
           }
         }
       }

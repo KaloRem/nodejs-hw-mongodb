@@ -15,11 +15,12 @@ const generateTokens = (userId) => {
   return { accessToken, refreshToken };
 };
 
+// Register
 export const register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
-    console.log('🔹 Próba rejestracji:', email, password);
+    console.log('🔹 Registration attempt:', email, password);
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -30,7 +31,7 @@ export const register = async (req, res, next) => {
 
     await newUser.save();
 
-    console.log('✅ Użytkownik zarejestrowany:', newUser);
+    console.log('✅ Registered user:', newUser);
 
     res.status(201).json({
       status: '201',
@@ -38,38 +39,39 @@ export const register = async (req, res, next) => {
       data: { id: newUser._id, name: newUser.name, email: newUser.email },
     });
   } catch (err) {
-    console.error('❌ Błąd rejestracji:', err);
+    console.error('❌ Registration error:', err);
     next(err);
   }
 };
 
+// Login
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    console.log('🔹 Próba logowania:', email, password);
+    console.log('🔹 Login attempt:', email, password);
 
     const user = await User.findOne({ email });
     if (!user) {
-      console.log('❌ Użytkownik nie znaleziony:', email);
+      console.log('❌ User not found:', email);
       throw createError(401, 'Invalid email or password');
     }
 
-    console.log('✅ Użytkownik znaleziony:', user);
-    console.log('🔍 Hasło użytkownika w bazie:', user.password);
-    console.log('🔍 Hasło podane przez użytkownika:', password);
+    console.log('✅ User found:', user);
+    console.log('🔍 User password in the database:', user.password);
+    console.log('🔍 Password provided by the user:', password);
 
     const testHash = await bcrypt.hash(password, 10);
-    console.log('🔍 Testowe hashowanie podanego hasła:', testHash);
+    console.log('🔍 Test hashing of the given password:', testHash);
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    console.log('🔍 Wynik porównania hasła:', isPasswordValid);
+    console.log('🔍 Password comparison result:', isPasswordValid);
     if (!isPasswordValid) {
-      console.log('❌ Błędne hasło dla:', email);
+      console.log('❌ Wrong password for:', email);
       throw createError(401, 'Invalid email or password');
     }
 
-    console.log('✅ Hasło poprawne! Generowanie tokenów...');
+    console.log('✅ Password correct! Token generation...');
 
     const { accessToken, refreshToken } = generateTokens(user._id);
 
@@ -102,26 +104,24 @@ export const login = async (req, res, next) => {
       data: { accessToken },
     });
 
-    console.log(
-      '✅ Użytkownik zalogowany, `accessToken` wygenerowany:',
-      accessToken,
-    );
+    console.log('✅ User logged in, `accessToken` generated:', accessToken);
   } catch (err) {
-    console.error('❌ Błąd logowania:', err);
+    console.error('❌ Login error:', err);
     next(err);
   }
 };
 
+// Refresh
 export const refresh = async (req, res, next) => {
   try {
-    console.log('🔹 Cookies w `refresh`:', req.cookies); // ✅ Sprawdzenie cookies
+    console.log('🔹 Cookies in `refresh`:', req.cookies); // ✅ Sprawdzenie cookies
 
     const { refreshToken } = req.cookies;
     if (!refreshToken) {
       throw createError(401, 'Refresh token missing');
     }
 
-    console.log('✅ Refresh token pobrany:', refreshToken);
+    console.log('✅ Refresh token downloaded:', refreshToken);
 
     const session = await Session.findOne({ refreshToken });
     if (!session) {
@@ -133,7 +133,7 @@ export const refresh = async (req, res, next) => {
       throw createError(401, 'Invalid or expired refresh token');
     }
 
-    console.log('✅ Refresh token zweryfikowany:', decoded);
+    console.log('✅ Refresh token verified:', decoded);
 
     const newAccessToken = jwt.sign(
       { userId: session.userId },
@@ -170,30 +170,31 @@ export const refresh = async (req, res, next) => {
       data: { accessToken: newAccessToken },
     });
 
-    console.log('✅ Nowy `accessToken` wygenerowany:', newAccessToken);
+    console.log('✅ New `accessToken` generated:', newAccessToken);
   } catch (error) {
-    console.error('❌ Błąd odświeżania sesji:', error);
+    console.error('❌ Session refresh error:', error);
     next(createError(401, 'Could not refresh session'));
   }
 };
 
+// Logout
 export const logout = async (req, res, next) => {
   try {
-    console.log('🔹 Próba wylogowania, cookies:', req.cookies);
+    console.log('🔹 Attempt to log out, cookies:', req.cookies);
 
     const { refreshToken } = req.cookies;
     if (!refreshToken) {
       throw createError(401, 'Refresh token missing');
     }
 
-    console.log('✅ Refresh token znaleziony:', refreshToken);
+    console.log('✅ Refresh token found:', refreshToken);
 
     const deletedSession = await Session.findOneAndDelete({ refreshToken });
     if (!deletedSession) {
       throw createError(401, 'Invalid refresh token');
     }
 
-    console.log('✅ Sesja usunięta z MongoDB:', deletedSession);
+    console.log('✅ Session deleted from MongoDB:', deletedSession);
 
     res.clearCookie('refreshToken', {
       httpOnly: true,
@@ -202,13 +203,14 @@ export const logout = async (req, res, next) => {
 
     res.status(204).send();
 
-    console.log('✅ Użytkownik poprawnie wylogowany!');
+    console.log('✅ User logged out successfully!');
   } catch (error) {
-    console.error('❌ Błąd wylogowania:', error);
+    console.error('❌ Logout error:', error);
     next(createError(401, 'Could not logout user'));
   }
 };
 
+// Reset Password Email
 export const sendResetPasswordEmail = async (req, res, next) => {
   try {
     const { email } = req.body;
@@ -230,24 +232,25 @@ export const sendResetPasswordEmail = async (req, res, next) => {
       data: {},
     });
   } catch (error) {
-    console.error('❌ Błąd', error);
+    console.error('❌ Error', error);
     next(createError(500, 'Failed to send the email, please try again later.'));
   }
 };
 
+// Reset Password
 export const resetPassword = async (req, res, next) => {
   try {
     const { token, password } = req.body;
 
-    console.log('🔑 Otrzymany token:', token);
-    console.log('🔒 Nowe hasło:', password);
+    console.log('🔑 Token received:', token);
+    console.log('🔒 New password:', password);
 
     let decoded;
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
-      console.log('✅ Token zweryfikowany:', decoded);
+      console.log('✅ Token verified:', decoded);
     } catch (error) {
-      console.error('❌ Błąd weryfikacji tokena:', error);
+      console.error('❌ Token verification error:', error);
       throw createError(401, 'Token is expired or invalid.');
     }
 
@@ -256,15 +259,15 @@ export const resetPassword = async (req, res, next) => {
       throw createError(404, 'User not found!');
     }
 
-    console.log('🔓 Hasło przed hashowaniem:', password);
+    console.log('🔓 Password before hashing:', password);
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log('🔍 Haszowane hasło przed zapisem:', hashedPassword);
+    console.log('🔍 Hashed password before writing:', hashedPassword);
 
     user.password = hashedPassword;
     await user.save();
 
-    console.log('🔒 Hasło po hashowaniu:', hashedPassword);
+    console.log('🔒 Password after hashing:', hashedPassword);
 
     await Session.deleteMany({ userId: user._id });
 
@@ -273,9 +276,9 @@ export const resetPassword = async (req, res, next) => {
       message: 'Password has been successfully reset.',
       data: {},
     });
-    console.log('✅ Hasło zresetowane dla:', user.email);
+    console.log('✅ Password reset for:', user.email);
   } catch (error) {
-    console.error('❌ Błąd resetowania hasła:', error);
+    console.error('❌ Password reset error:', error);
     next(error);
   }
 };

@@ -2,6 +2,7 @@ import Contact from '../models/contactModel.js';
 import cloudinary from '../services/cloudinaryService.js';
 import createError from 'http-errors';
 
+// All contacts
 export const getContacts = async (req, res, next) => {
   try {
     const {
@@ -51,6 +52,7 @@ export const getContacts = async (req, res, next) => {
   }
 };
 
+// Contacts by ID
 export const getContactById = async (req, res, next) => {
   try {
     const { contactId } = req.params;
@@ -75,13 +77,14 @@ export const getContactById = async (req, res, next) => {
   }
 };
 
+// Creating new contact
 export const createContact = async (req, res, next) => {
   try {
-    console.log('📩 Otrzymane dane z Postmana:', req.body);
-    console.log('🖼 Otrzymany plik:', req.file);
+    console.log('📩 Received data from Postman:', req.body);
+    console.log('🖼 Received file:', req.file);
 
     if (!req.body.name) {
-      console.error('❌ `name` jest pusty! Problem z `multer`?');
+      console.error('❌ `name` is empty! Problem with `multer`?');
       return res.status(400).json({ message: '"name" is required' });
     }
 
@@ -90,16 +93,16 @@ export const createContact = async (req, res, next) => {
 
     if (req.file) {
       try {
-        console.log('📤 Przesyłanie pliku na Cloudinary...');
+        console.log('📤 Uploading a file to Cloudinary...');
         photoUrl = await new Promise((resolve, reject) => {
           const stream = cloudinary.uploader.upload_stream(
             { folder: 'contacts' },
             (error, result) => {
               if (error) {
-                console.error('❌ Błąd przesyłania na Cloudinary:', error);
-                reject(createError(500, 'Błąd przesyłania zdjęcia'));
+                console.error('❌ Upload error on Cloudinary:', error);
+                reject(createError(500, 'Photo upload error'));
               } else {
-                console.log('✅ Przesłano zdjęcie:', result.secure_url);
+                console.log('✅ Photo uploaded:', result.secure_url);
                 resolve(result.secure_url);
               }
             },
@@ -107,8 +110,8 @@ export const createContact = async (req, res, next) => {
           stream.end(req.file.buffer);
         });
       } catch (error) {
-        console.error('❌ Błąd Cloudinary:', error);
-        return next(createError(500, 'Nie udało się przesłać zdjęcia'));
+        console.error('❌ Cloudinary error:', error);
+        return next(createError(500, 'Failed to upload photo'));
       }
     }
 
@@ -127,11 +130,12 @@ export const createContact = async (req, res, next) => {
       data: newContact,
     });
   } catch (error) {
-    console.error('❌ Błąd tworzenia kontaktu:', error);
+    console.error('❌ Error creating contact:', error);
     next(error);
   }
 };
 
+// Updating contact
 export const updateContact = async (req, res, next) => {
   try {
     const { contactId } = req.params;
@@ -141,16 +145,19 @@ export const updateContact = async (req, res, next) => {
 
     if (req.file) {
       try {
-        console.log('📤 Przesyłanie nowego zdjęcia na Cloudinary...');
+        console.log('📤 Uploading a new photo to Cloudinary...');
         const photoUrl = await new Promise((resolve, reject) => {
           const stream = cloudinary.uploader.upload_stream(
             { folder: 'contacts' },
             (error, result) => {
               if (error) {
-                console.error('❌ Błąd przesyłania na Cloudinary:', error);
-                reject(createError(500, 'Błąd przesyłania zdjęcia'));
+                console.error('❌ Upload error on Cloudinary:', error);
+                reject(createError(500, 'Photo upload error'));
               } else {
-                console.log('✅ Przesłano nowe zdjęcie:', result.secure_url);
+                console.log(
+                  '✅ A new photo has been uploaded:',
+                  result.secure_url,
+                );
                 resolve(result.secure_url);
               }
             },
@@ -160,8 +167,8 @@ export const updateContact = async (req, res, next) => {
 
         updateData.photo = photoUrl;
       } catch (error) {
-        console.error('❌ Błąd Cloudinary:', error);
-        return next(createError(500, 'Nie udało się przesłać zdjęcia'));
+        console.error('❌ Cloudinary error:', error);
+        return next(createError(500, 'Failed to upload photo'));
       }
     }
 
@@ -175,7 +182,7 @@ export const updateContact = async (req, res, next) => {
     );
 
     if (!updatedContact) {
-      return next(createError(404, 'Kontakt nie został znaleziony!'));
+      return next(createError(404, 'Contact not found!'));
     }
 
     res.status(200).json({
@@ -188,6 +195,7 @@ export const updateContact = async (req, res, next) => {
   }
 };
 
+// Deleting contact
 export const deleteContactById = async (req, res, next) => {
   try {
     const { contactId } = req.params;
@@ -197,7 +205,7 @@ export const deleteContactById = async (req, res, next) => {
     });
 
     if (!deletedContact) {
-      return next(createError(404, 'Kontakt nie został znaleziony!'));
+      return next(createError(404, 'Contact not found!'));
     }
 
     res.status(204).send();

@@ -23,13 +23,16 @@ const userSchema = new mongoose.Schema(
 
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password') || this.password.startsWith('$2a$')) {
-    console.log('⚠️ Hasło już jest zahaszowane – pomijam.');
+    console.log('⚠️ The password is already hashed - Ill ignore it.');
     return next();
   }
 
-  console.log('🔍 Haszowanie hasła przed zapisem do MongoDB:', this.password);
+  console.log(
+    '🔍 Hashing the password before writing to MongoDB:',
+    this.password,
+  );
   this.password = await bcrypt.hash(this.password, 10);
-  console.log('✅ Zahaszowane hasło przed zapisem:', this.password);
+  console.log('✅ Hashed password before writing:', this.password);
 
   next();
 });

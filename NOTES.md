@@ -1,14 +1,14 @@
 # 📌 Node.js + MongoDB API
 
-## 📖 Opis projektu
+## 📚 Project Description
 
-To API do zarządzania kontaktami, napisane w **Node.js** z wykorzystaniem **MongoDB** jako bazy danych. Obsługuje autoryzację JWT, przesyłanie obrazków do Cloudinary oraz operacje CRUD na kontaktach.
+This is a **Node.js** API for managing contacts, using **MongoDB** as the database. It supports JWT authentication, image uploads to Cloudinary, and CRUD operations on contacts.
 
 ---
 
-## 🚀 Jak uruchomić projekt
+## 🚀 How to Run the Project
 
-### 1️⃣ Skopiuj repozytorium
+### 1️⃣ Clone the Repository
 
 ```bash
 git clone https://github.com/KaloRem/nodejs-hw-mongodb.git
@@ -16,15 +16,15 @@ cd nodejs-hw-mongodb
 git checkout hw6-email-and-images
 ```
 
-### 2️⃣ Zainstaluj zależności
+### 2️⃣ Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 3️⃣ Skonfiguruj plik `.env`
+### 3️⃣ Configure the `.env` File
 
-Stwórz plik `.env` w głównym katalogu i uzupełnij go:
+Create a `.env` file in the root directory and fill in the necessary credentials:
 
 ```env
 PORT=3000
@@ -35,7 +35,7 @@ CLOUDINARY_API_KEY=your_cloud_api_key
 CLOUDINARY_API_SECRET=your_cloud_api_secret
 ```
 
-### 4️⃣ Uruchom serwer
+### 4️⃣ Start the Server
 
 ```bash
 npm run dev
@@ -45,9 +45,9 @@ npm run dev
 
 ## 🛠️ API Endpoints
 
-### 🔑 **Autoryzacja**
+### 🔑 **Authentication**
 
-#### 🟢 Logowanie użytkownika
+#### 🟢 User Login
 
 **POST `/auth/login`**
 
@@ -65,20 +65,20 @@ npm run dev
   }
   ```
 
-### 📇 **Kontakty**
+### 👇 **Contacts**
 
-#### 🟢 Pobierz listę kontaktów
+#### 🟢 Get Contact List
 
 **GET `/contacts`**
 
 - **Headers:** `{ "Authorization": "Bearer JWT_TOKEN" }`
-- **Response (200 OK)** → lista kontaktów użytkownika
+- **Response (200 OK)** → User's contact list
 
-#### 🟢 Pobierz kontakt po ID
+#### 🟢 Get Contact by ID
 
 **GET `/contacts/:contactId`**
 
-#### 🟢 Dodaj kontakt (z obrazkiem)
+#### 🟢 Add a Contact (with Image)
 
 **POST `/contacts`**
 
@@ -90,30 +90,47 @@ npm run dev
   - `contactType` (Text)
   - `photo` (File) → JPG/PNG
 
-#### 🟡 Aktualizuj kontakt
+#### 🟡 Update a Contact
 
 **PATCH `/contacts/:contactId`**
 
-- **Body (form-data, opcjonalne pola):** `name`, `email`, `phoneNumber`, `contactType`, `photo`
+- **Body (form-data, optional fields):** `name`, `email`, `phoneNumber`, `contactType`, `photo`
 
-#### 🔴 Usuń kontakt
+#### 🔴 Delete a Contact
 
 **DELETE `/contacts/:contactId`**
 
 ---
 
-## ✅ Technologie
+## ✅ Technologies Used
 
 - **Node.js + Express**
 - **MongoDB + Mongoose**
 - **JWT (JSON Web Token)**
-- **Multer (przesyłanie plików)**
-- **Cloudinary (przechowywanie obrazów)**
-- **dotenv (zmienne środowiskowe)**
+- **Multer (file uploads)**
+- **Cloudinary (image storage)**
+- **dotenv (environment variables)**
+- **Swagger UI (API documentation)**
 
 ---
 
-## 💡 Autor
+## 📚 API Documentation with Swagger
+
+This project includes an interactive API documentation using **Swagger UI**.
+
+### 🛠️ How to Access Swagger UI
+
+1. Start the server (`npm run dev`).
+2. Open your browser and go to:
+   ```
+   http://localhost:3000/api-docs
+   ```
+
+Swagger UI allows you to test API endpoints directly from the browser, view request/response details, and authenticate with JWT tokens.
+
+---
+
+## 💡 Author
 
 **Bogdan Pasławski**  
 📧 bogdan.paslawskii@gmail.com

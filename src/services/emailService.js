@@ -28,8 +28,7 @@ export const sendResetEmail = async (email, token) => {
     }
     const resetLink = `${process.env.APP_DOMAIN}/reset-password?token=${token}`;
 
-    console.log('🔗 Link resetowania:', resetLink); // Debugowanie
-
+    console.log('🔗 Link resetowania:', resetLink);
     await transporter.sendMail({
       from: process.env.SMTP_FROM,
       to: email,
@@ -47,9 +46,9 @@ export const sendResetEmail = async (email, token) => {
   `,
     });
 
-    console.log(`✅ Email z resetem wysłany do: ${email}`);
+    console.log(`✅ Email send to: ${email}`);
   } catch (error) {
-    console.error('❌ Błąd wysyłania e-maila:', error);
+    console.error('❌ Failed to send reset email:', error);
     throw new Error('Failed to send reset email.');
   }
 };

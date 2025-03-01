@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login, refresh, logout } from '../controllers/auth.js'; // ✅ Import jako ES Module
+import { register, login, refresh, logout } from '../controllers/auth.js';
 import validate from '../middlewares/validate.js';
 import { registerSchema, loginSchema } from '../validation/auth.js';
 import { sendResetPasswordEmail } from '../controllers/auth.js';

@@ -20,15 +20,15 @@ requestBody:
           name:
             description: Contact name
             type: string
-            example: 'Ivan Pele'
+            example: 'Bogdan Paslawski'
           phoneNumber:
             description: Contact phone
             type: string
-            example: '+380975554532'
+            example: '+380000000000'
           email:
             description: Contact email address
             type: string
-            example: ivanpele@gmail.com
+            example: bogdan.paslawskii@gmail.com
           contactType:
             description: 'Contact type'
             enum: ['work', 'personal', 'home']

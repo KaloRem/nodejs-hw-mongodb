@@ -9,7 +9,7 @@ const upload = multer({
 });
 
 export const testUploadMiddleware = (req, res, next) => {
-  console.log('🚀 TEST: Czy Multer działa?');
+  console.log('🚀 TEST: Does Multer work?');
   console.log('📩 Body:', req.body);
   console.log('🖼 File:', req.file);
   console.log('📂 Files:', req.files);

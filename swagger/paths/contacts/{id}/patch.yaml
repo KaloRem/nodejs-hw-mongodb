@@ -11,7 +11,7 @@ parameters:
     required: true
     schema:
       type: string
-    example: '67ca67e7ae7f10c25b566655'
+    example: '67b322e09613d7e62762f258'
 requestBody:
   required: true
   content:
