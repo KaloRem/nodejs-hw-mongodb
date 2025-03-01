@@ -36,3 +36,6 @@ components:
     bearerAuth:
       type: http
       scheme: bearer
+  schemas:
+    Contact:
+      $ref: '../swagger/components/schemas/contact.yaml'

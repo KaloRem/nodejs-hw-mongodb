@@ -11,10 +11,12 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3000"
+      "url": "http://localhost:3000",
+      "description": "Lokalny serwer"
     },
     {
-      "url": "https://contacts-manager-app-swagger.onrender.com"
+      "url": "https://nodejs-hw-mongodb-swagger-8jd1.onrender.com",
+      "description": "Serwer produkcyjny"
     }
   ],
   "tags": [
@@ -219,7 +221,7 @@
                     "example": "ivanpele@gmail.com"
                   },
                   "contactType": {
-                    "description": "Contact's type",
+                    "description": "Contact type",
                     "enum": [
                       "work",
                       "personal",
@@ -518,6 +520,9 @@
       }
     },
     "schemas": {
+      "Contact": {
+        "$ref": "#/components/schemas/contact"
+      },
       "contact": {
         "type": "object",
         "required": [
@@ -532,22 +537,22 @@
           "_id": {
             "description": "Contact's id",
             "type": "string",
-            "example": "679ca01a791a37e1a64e5d7b"
+            "example": 1.1111111111111111e+23
           },
           "name": {
             "description": "Contact's name",
             "type": "string",
-            "example": "Ivan Pele"
+            "example": "Test Test"
           },
           "phoneNumber": {
             "description": "Contact's number",
             "type": "string",
-            "example": 380975554431
+            "example": 38111111111
           },
           "email": {
             "description": "Contact's email",
             "type": "string",
-            "example": "ivanpele@gmail.com"
+            "example": "test@gmail.com"
           },
           "isFavourite": {
             "description": "Whether the contact is favorite or not",
@@ -566,7 +571,7 @@
           "photo": {
             "description": "Link to contact's photo",
             "type": "string",
-            "example": "https://res.cloudinary.com/dcmygtlyh/image/upload/v1738875474/t8x8g4ph2jwns18rb3wb.jpg"
+            "example": "https://res.cloudinary.com/111111111/image/upload/v1111111111111111111111111111111.jpg"
           }
         }
       }
@@ -684,23 +689,24 @@
         }
       },
       "500": {
-        "description": "Internal Server Error",
+        "description": "Contact not found",
         "content": {
           "application/json": {
             "schema": {
               "type": "object",
               "required": [
                 "status",
-                "message"
+                "message",
+                "data"
               ],
               "properties": {
                 "status": {
                   "type": "integer",
-                  "example": 500
+                  "example": 404
                 },
                 "message": {
                   "type": "string",
-                  "example": "Internal Server Error"
+                  "example": "Contact not found"
                 },
                 "data": {
                   "type": "object",
@@ -710,7 +716,7 @@
                   "properties": {
                     "message": {
                       "type": "string",
-                      "example": "Something went wrong"
+                      "example": "Access token expired"
                     }
                   }
                 }
